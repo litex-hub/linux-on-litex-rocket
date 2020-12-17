@@ -1,0 +1,413 @@
+# Linux on LiteX with a 64-bit RocketChip CPU
+
+This repository demonstrates the capability to run 64-bit Linux on a
+SoC built with [LiteX](https://github.com/enjoy-digital/litex) and
+[RocketChip](https://github.com/chipsalliance/rocket-chip).
+
+## Prerequisites:
+
+1. Miscellaneous supporting packages, most likely available from the
+   repositories of your Linux distribution; e.g., on Fedora(32):
+
+   ```
+   sudo dnf install openocd dtc fakeroot perl-bignum json-c-devel verilator \
+                     python3-devel libevent-devel libmpc-devel mpfr-devel
+   ```
+
+   Some Linux distributions (e.g, Fedora) also provide packaged versions of
+   some of the additional prerequisites listed below (e.g., `python3-migen`,
+   `yosys`, `trellis`, and `nextpnr`).
+
+2. The full LiteX development environment (including pre-built Verilog
+   "intermediate" sources for Rocket, and the underlying Migen meta-HDL):
+
+   ```
+   wget https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py
+   python3 ./litex_setup.py init install --user
+   ```
+
+3. A GCC cross-compiler toolchain for 64-bit RISC-V. One might simply add
+   `gcc` as an additional argument on the `litex_setup.py` installation
+   command line from above, but that may or may not work when building
+   BusyBox, and, more importantly, BBL. Therefore, for a fully functional
+   toolchain, the following is strongly recommended:
+
+   ```
+   git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
+   pushd riscv-gnu-toolchain
+   ./configure --prefix=$HOME/RISCV --enable-multilib
+   make newlib linux
+   popd
+   ```
+
+   Note that building the whole gcc cross-compiler toolchain from source may
+   take several hours to complete. A pre-built binary tarball of the toolchain
+   described above may be downloaded
+   [here](http://www.contrib.andrew.cmu.edu/~somlo/BTCP/RISCV-20201216git7553f35.tar.xz).
+
+   Be sure to add `$HOME/RISCV/bin` to your `$PATH`, e.g.:
+
+   ```
+   echo 'export PATH=$PATH:$HOME/RISCV/bin' >> ~/.bashrc
+   ```
+
+4. One or more HDL toolchains, as appropriate for your specific FPGA board:
+   - Vivado (e.g., 2018.2) for Xilinx boards (e.g., `nexys4ddr`)
+   - [yosys](https://github.com/YosysHQ/yosys),
+     [trellis](https://github.com/YosysHQ/prjtrellis), and
+     [nextpnr](https://github.com/YosysHQ/nextpnr)
+     for Lattice ECP5 boards (e.g., `versa_ecp5`, `trellisboard`, etc.)<br>
+     You may be able to install these as distro-packages on e.g. Fedora
+     (`sudo dnf install yosys trellis nextpnr`), or you may want to download
+     and build their latest upstream sources, as they are being developed
+     at a rapid pace and changes (for better or worse) will outpace whatever
+     is currently offered as a package with Fedora.
+
+## Pre-built Binaries: bitstream, boot images, intermediate targets:
+
+Pre-built binaries for most of the targets described below are available for
+download [here](https://github.com/litex-hub/linux-on-litex-rocket/issues/1).
+
+## Building the Gateware (FPGA Bitstream):
+
+The three boards currently tested are `nexys4ddr`, `trellisboard`,
+and `versa_ecp5`. Once all prerequisites are in place, building
+bitstream for each one is a relatively straightforward process.
+
+***NOTE 1***: The difference between the `linux`, `linuxd`, and `linuxq`
+variants of the Rocket cpu-type is in the bit width of the point-to-point
+AXI link connecting the CPU and LiteDRAM controller specific to each particular
+board model. On `nexys4ddr`, LiteDRAM has a native port width of 64 bits;
+on the `trellisboard`, the native LiteDRAM width is 256 bits; finally, on
+the `versa_ecp5`, LiteDRAM is 128 bit wide.
+
+***NOTE 2***: The `--load` option on the command line examples below will
+have the builder invoke `openocd` to push the bitstream to the board,
+assuming the board is connected to a USB port and powered on.
+
+1. LiteX+Rocket on the `nexys4ddr`:
+
+   ```
+   litex-boards/litex_boards/targets/nexys4ddr.py --build --load \
+      --cpu-type rocket --cpu-variant linux --sys-clk-freq 50e6 \
+      --with-ethernet --with-sdcard --integrated-rom-size 0x10000
+   ```
+
+   This is currently the most well-supported option, with the only "drawback"
+   that it relies on a proprietary non-FOSS HDL toolchain (Vivado). The design
+   passes timing at 50MHz, and both Ethernet and SDCard booting (and operation
+   under Linux) works (with the occasional LiteSDCard read data transfer
+   timeout).
+
+   To program the board with a pre-built bitstream file, run:
+
+   ```
+   openocd -f litex-boards/litex_boards/prog/openocd_xc7_ft2232.cfg \
+            -c "transport select jtag; init;
+                pld load 0 build/nexys4ddr/gateware/nexys4ddr.bit; exit"
+   ```
+
+2. LiteX+Rocket on the `trellisboard`:
+
+   ```
+   litex-boards/litex_boards/targets/trellisboard.py --build --load \
+      --cpu-type rocket --cpu-variant linuxq --sys-clk-freq 50e6 \
+      --with-ethernet --with-sdcard --integrated-rom-size 0x10000
+   ```
+
+   Unlike the `nexys4ddr`, the built-in SDCard reader on this board does not
+   have a card-detect pin, so the SDCard must be inserted when the kernel
+   boots, and can't be ejected while the kernel runs. Ethernet works fine
+   both during tftp-boot and under Linux, and booting from SDCard also works
+   well. SDCard behavior under Linux suffers from lots of data transfer errors
+   and timeouts, so it's not really usable at the moment.<br>
+   There's an option to use an external pmod SDCard reader, which *does* offer
+   a card-detect pin. Testing in that configuration is pending.<br>
+   Finally, `nextpnr` does not currently offer a solution that passes timing;
+   however, things seem to *mostly* work, as the timing data used by the tool
+   at the moment is known to be overly conservative.
+
+   To program the board with a pre-built bitstream file, run:
+
+   ```
+   openocd -f litex-boards/litex_boards/prog/openocd_trellisboard.cfg \
+            -c "transport select jtag; init;
+                svf build/trellisboard/gateware/trellisboard.svf; exit"
+   ```
+
+3. LiteX+Rocket on `versa_ecp5`:
+
+   ```
+   litex-boards/litex_boards/targets/versa_ecp5.py --build --load \
+      --cpu-type rocket --cpu-variant linuxd --sys-clk-freq 50e6 \
+      --with-ethernet [--yosys-nowidelut]
+   ```
+
+   In the past (cca mid-2019) this *used* to result in a bit under 99% LUT
+   utilization, and working Ethernet. As of right now, utilization comes in
+   at exactly 100%, and it's usually a coin-toss whether nextpnr manages to
+   squeeze it all into the 45k LUTs available on the ECP5 FPGA provisioned
+   on that board. To get it to build *eventually*, use the following loop:
+
+   ```
+   while true; do
+     rm -rf build/versa_ecp5
+     litex-boards/litex_boards/targets/versa_ecp5.py --build \
+        --cpu-type rocket --cpu-variant linuxd --sys-clk-freq 50e6 \
+        --with-ethernet --yosys-nowidelut --nextpnr-seed $RANDOM
+     (( $? == 0 )) && break
+   done
+   ```
+
+   Adding the `--yosys-nowidelut` option to the build command line *might*
+   result in a slightly tighter packing, possibly at the expense of some of
+   the timing budget. Adding `--nextpnr-seed $RANDOM` causes different seeds
+   to be used with the stochastic P&R process, increasing the chances of the
+   design fitting on the FPGA, eventually.
+
+   The resulting design is *currently* unable to boot over Ethernet (using
+   tftp), although it *used* to be able to do so in the past (with older
+   versions of `LiteX`, `yosys`, `trellis`, and/or `nextpnr`).
+
+   To program the board with a pre-built bitstream file, run:
+
+   ```
+   openocd -f litex-boards/litex_boards/prog/openocd_versa_ecp5.cfg \
+            -c "transport select jtag; init;
+                svf build/trellisboard/gateware/versa_ecp5.svf; exit"
+   ```
+
+## Building the Software (`boot.bin`: BusyBox, Linux, and BBL)
+
+To keep things simple, we embed a BusyBox based initial RAM filesystem
+into the Linux kernel, as a cpio archive provided during kernel compilation.
+The kernel is subsequently embedded as a payload into BBL, which is then
+loaded into RAM by the bare-metal (BIOS) bootloader. BBL also provides FPU
+emulation at the machine layer, since none of our FPGAs are large enough
+to fit a RocketChip version with a "real" FPU (implemented in gateware).
+
+1. Building BusyBox:
+
+   Using the included [config](conf/busybox-1.31.0-rv64gc.config) file, we
+   cross-compile BusyBox as a static binary for the `rv64gc` architecture:
+
+   ```
+   curl https://busybox.net/downloads/busybox-1.31.0.tar.bz2 | tar xfj -
+   cp conf/busybox-1.31.0-rv64gc.config busybox-1.31.0/.config
+   (cd busybox-1.31.0; make CROSS_COMPILE=riscv64-unknown-linux-gnu-)
+   ```
+
+2. Creating the `initramfs.cpio` (kernel root RAM filesystem) archive:
+
+   We build a rudimentary root file system layout for Linux, relying
+   on `fakeroot` to create device nodes, before packaging it as a `.cpio`
+   archive:
+
+   ```
+   mkdir initramfs
+   pushd initramfs
+   mkdir -p bin sbin lib etc dev home proc sys tmp mnt nfs root \
+             usr/bin usr/sbin usr/lib
+   cp ../busybox-1.31.0/busybox bin/
+   ln -s bin/busybox ./init
+   cat > etc/inittab <<- "EOT"
+::sysinit:/bin/busybox mount -t proc proc /proc
+::sysinit:/bin/busybox mount -t tmpfs tmpfs /tmp
+::sysinit:/bin/busybox mount -t sysfs sysfs /sys
+::sysinit:/bin/busybox --install -s
+/dev/console::sysinit:-/bin/ash
+EOT
+   fakeroot <<- "EOT"
+mknod dev/null c 1 3
+mknod dev/tty c 5 0
+mknod dev/zero c 1 5
+mknod dev/console c 5 1
+mknod dev/mmcblk0 b 179 0
+mknod dev/mmcblk0p1 b 179 1
+mknod dev/mmcblk0p2 b 179 2
+find . | cpio -H newc -o > ../initramfs.cpio
+EOT
+   popd
+   ```
+
+3. Building the Kernel:
+
+   Using the `initramfs.cpio` root image from earlier, we cross-compile a
+   64-bit (RV64GC) kernel with device drivers for our LiteX specific gateware
+   devices (N.B., the kernel is unmodified w.r.t. upstream, except for the
+   added LiteX gateware drivers):
+
+   ```
+   git clone https://github.com/litex-hub/linux.git
+   cp initramfs.cpio linux/
+   pushd linux
+   git checkout litex-rocket-rebase
+   make ARCH=riscv CROSS_COMPILE=riscv64-unknown-linux-gnu- \
+         litex_rocket_defconfig litex_rocket_initramfs.config
+   make ARCH=riscv CROSS_COMPILE=riscv64-unknown-linux-gnu-
+   popd
+   ```
+
+4. Building BBL (a.k.a. `boot.bin`, a.k.a. the Litex boot image):
+
+   BBL (the somewhat improperly named "Berkely Boot Loader") is in reality a
+   machine (M) mode "hypervisor" of sorts, providing trap handlers for things
+   like the kernel's hvc/sbi console driver, and FPU emulation. Running in
+   supervisor (S) mode, the kernel will trap into the underlying M mode when
+   attempting to execute an FP opcode (which is an *illegal* opcode given that
+   the actual Rocket CPU lacks a FP unit, which would be too large to fit on
+   any of the FPGAs we used up to this point). BBL is configured to emulate
+   said FP opcodes, and to restart the kernel once the computation is complete.
+
+   Normally, the Device Tree data structure should be embedded into the BIOS
+   built into the bitstream. However, since `litex/tools/litex_json2dts.py`
+   doesn't yet know how to dynamically generate a proper Litex+Rocket `.dts`
+   file, we provide pre-generated source files that can be embedded into BBL
+   during compilation.
+
+   For now, we provide Device Tree source configurations matching all three
+   FPGA development boards for which we know how to build a bitsream:
+   `nexys4ddr`, `trellisboard`, and `versa_ecp5`. The example below uses
+   [`nexys4ddr.dts`](conf/nexys4ddr.dts), but feel free to replace that with
+   [`trellisboard.dts`](conf/trellisboard.dts) or
+   [`versa_ecp5.dts`](conf/versa_ecp5.dts), as needed:
+
+   ```
+   git clone https://github.com/riscv/riscv-pk
+   mkdir riscv-pk/build
+   pushd riscv-pk/build
+   # NOTE: "--with-arch=rv64imac" is what enables BBL's FPU emulation!
+   ../configure --host=riscv64-unknown-linux-gnu \
+                 --with-arch=rv64imac \
+                 --with-payload=../../linux/vmlinux \
+                 --with-dts=../../conf/nexys4ddr.dts \
+                 --enable-logo
+   make bbl
+   riscv64-unknown-linux-gnu-objcopy -O binary bbl ../../boot.bin
+   popd
+   ```
+
+   The resulting file `boot.bin` will be the "binary blob" loaded into RAM
+   by the bare-metal firmware (BIOS) included with each board's bitstream.
+
+## Starting Linux on Litex+Rocket
+
+To connect to the system's console, use the `screen` utility (assuming
+`/dev/ttyUSB1` is used, below):
+
+```
+screen /dev/ttyUSB1 115200
+```
+
+Each time a board is programmed (directly from the builder if the `--load`
+option is given, or directly using `openocd`), and each time a programmed
+board is reset, the bare-metal firmware (BIOS) included in the bitstream
+will initialize the CPU, RAM, and peripherals, and attempt to load `boot.bin`,
+first from the SDCard (first partition, expected to be formatted as msdos/fat),
+then via TFTP over the network (expecting a `192.168.1.0/24` network, with
+the LiteX+Rocket system using IP address `192.168.1.50`, and attempting to
+download `boot.bin` via TFTP from a server at `192.168.1.100`).
+
+1. Booting from microSD card:
+
+   Using any partitioning tool, create a dos partition table and a FAT
+   partition on your microSD card, which should look something like this:
+
+   ```
+   fdisk /dev/sdX
+
+   Welcome to fdisk (util-linux 2.35.2).
+   Changes will remain in memory only, until you decide to write them.
+   Be careful before using the write command.
+
+   Command (m for help): p
+   Disk /dev/sdX: 29.74 GiB, 31914983424 bytes, 62333952 sectors
+   Disk model: SD/MMC
+   Units: sectors of 1 * 512 = 512 bytes
+   Sector size (logical/physical): 512 bytes / 512 bytes
+   I/O size (minimum/optimal): 512 bytes / 512 bytes
+   Disklabel type: dos
+   Disk identifier: 0x67f480f9
+
+   Device     Boot   Start      End  Sectors  Size Id Type
+   /dev/sdX1          2048  2099199  2097152    1G  6 FAT16
+   ...
+   ```
+
+   Format the partition, mount it, and copy `boot.bin` to it:
+
+   ```
+   mkdosfs /dev/sdX1
+   mount /dev/sdX1 /mnt
+   cp boot.bin /mnt
+   umount /mnt
+   ```
+
+   With the microSD card inserted, reset (or program) the board, and
+   BBL, then Linux, and, finally, a BusyBox shell should appear on the
+   console.
+
+2. Booting from the network:
+
+   Connect the board's Ethernet port to a switch/router port that places it
+   into the same Layer-2 broadcast domain (i.e., on the same LAN) as the
+   machine acting as your TFTP server. Ensure that `boot.bin` is available
+   in the TFTP directory, and that the TFTP server (or socket, if using
+   systemd) is started:
+
+   ```
+   sudo cp boot.bin /var/lib/tftpboot/
+   sudo systemctl start tftp.socket
+   ```
+
+   Also make sure your TFTP server responds to requests sent to the IP
+   address `192.168.1.100`, by adding that address as a secondary IP to
+   your network interface:
+
+   ```
+   sudo ip addr add 192.168.1.100/24 scope global dev ETH0
+   ```
+
+   (replacing `ETH0` with whatever your relevant network interface is
+   actually named).
+
+   Ensure the microSD slot is empty (as it takes precedence over Ethernet
+   in the hardcoded BIOS boot order), and program or reset the board. The
+   `boot.bin` blob will be copied in over TFTP, and BBL, Linux, and BusyBox's
+   shell will be started on the console, in that order.
+
+## Simulation (using Verilator)
+
+   The RocketChip equipped LiteX SoC can be tested using Verilator. However,
+   simulation will be (painfully) slow when compared to simulating a 32-bit
+   CPU option (e.g., VexRiscV). To avoid waiting (for hours) for `boot.bin`
+   to be loaded via TFTP, use `--ram-init boot.bin` to "side-load" the image
+   directly into the simulated RAM memory:
+
+   ```
+   litex/litex/tools/litex_sim.py --threads 4 --opt-level Ofast \
+      --cpu-type rocket --cpu-variant linux \
+      --with-ethernet [--ram-init boot.bin]
+   ```
+
+   Once the simulation starts, it will attempt its usual boot sequence,
+   which includes booting over the serial link, then netbooting over TFTP.
+   The latter takes *very* long to time out, so you might want to preempt
+   the entire sequence by hitting `Q` or `Esc` when prompted by the bios.
+
+   At the moment, I'm not aware of a good way to tell the firmware/BIOS to
+   simply jump to the first RAM address and start executing the side-loaded
+   `boot.bin` which is now located there. Although that should be an easy fix.
+
+## Future Work (TODO List)
+
+- Improve LiteSDCard performance
+  - data transfer timeouts on `nexys4ddr`
+  - gpio-based card-detect and/or PMOD (external) SDCard reader for
+    `trellisboard`
+- track `yosys`/`trellis`/`nextpnr` upstream for improved timing and
+    resource allocation on `trellisboard` and `versa_ecp5`
+- port to more FPGA dev. boards (e.g., `genesys2`)
+- improve Linux drivers for LiteX gateware, upstream 64- and 32-bit capable
+  drivers into mainline Linux
+- ... and much more!
