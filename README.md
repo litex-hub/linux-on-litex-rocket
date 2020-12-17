@@ -11,7 +11,7 @@ SoC built with [LiteX](https://github.com/enjoy-digital/litex) and
 
    ```
    sudo dnf install openocd dtc fakeroot perl-bignum json-c-devel verilator \
-                     python3-devel libevent-devel libmpc-devel mpfr-devel
+                    python3-devel libevent-devel libmpc-devel mpfr-devel
    ```
 
    Some Linux distributions (e.g, Fedora) also provide packaged versions of
@@ -103,8 +103,8 @@ assuming the board is connected to a USB port and powered on.
 
    ```
    openocd -f litex-boards/litex_boards/prog/openocd_xc7_ft2232.cfg \
-            -c "transport select jtag; init;
-                pld load 0 build/nexys4ddr/gateware/nexys4ddr.bit; exit"
+           -c "transport select jtag; init;
+               pld load 0 build/nexys4ddr/gateware/nexys4ddr.bit; exit"
    ```
 
 2. LiteX+Rocket on the `trellisboard`:
@@ -131,8 +131,8 @@ assuming the board is connected to a USB port and powered on.
 
    ```
    openocd -f litex-boards/litex_boards/prog/openocd_trellisboard.cfg \
-            -c "transport select jtag; init;
-                svf build/trellisboard/gateware/trellisboard.svf; exit"
+           -c "transport select jtag; init;
+               svf build/trellisboard/gateware/trellisboard.svf; exit"
    ```
 
 3. LiteX+Rocket on `versa_ecp5`:
@@ -173,8 +173,8 @@ assuming the board is connected to a USB port and powered on.
 
    ```
    openocd -f litex-boards/litex_boards/prog/openocd_versa_ecp5.cfg \
-            -c "transport select jtag; init;
-                svf build/trellisboard/gateware/versa_ecp5.svf; exit"
+           -c "transport select jtag; init;
+               svf build/trellisboard/gateware/versa_ecp5.svf; exit"
    ```
 
 ## Building the Software (`boot.bin`: BusyBox, Linux, and BBL)
@@ -211,22 +211,22 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
    cp ../busybox-1.31.0/busybox bin/
    ln -s bin/busybox ./init
    cat > etc/inittab <<- "EOT"
-::sysinit:/bin/busybox mount -t proc proc /proc
-::sysinit:/bin/busybox mount -t tmpfs tmpfs /tmp
-::sysinit:/bin/busybox mount -t sysfs sysfs /sys
-::sysinit:/bin/busybox --install -s
-/dev/console::sysinit:-/bin/ash
-EOT
+   ::sysinit:/bin/busybox mount -t proc proc /proc
+   ::sysinit:/bin/busybox mount -t tmpfs tmpfs /tmp
+   ::sysinit:/bin/busybox mount -t sysfs sysfs /sys
+   ::sysinit:/bin/busybox --install -s
+   /dev/console::sysinit:-/bin/ash
+   EOT
    fakeroot <<- "EOT"
-mknod dev/null c 1 3
-mknod dev/tty c 5 0
-mknod dev/zero c 1 5
-mknod dev/console c 5 1
-mknod dev/mmcblk0 b 179 0
-mknod dev/mmcblk0p1 b 179 1
-mknod dev/mmcblk0p2 b 179 2
-find . | cpio -H newc -o > ../initramfs.cpio
-EOT
+   mknod dev/null c 1 3
+   mknod dev/tty c 5 0
+   mknod dev/zero c 1 5
+   mknod dev/console c 5 1
+   mknod dev/mmcblk0 b 179 0
+   mknod dev/mmcblk0p1 b 179 1
+   mknod dev/mmcblk0p2 b 179 2
+   find . | cpio -H newc -o > ../initramfs.cpio
+   EOT
    popd
    ```
 
@@ -243,7 +243,7 @@ EOT
    pushd linux
    git checkout litex-rocket-rebase
    make ARCH=riscv CROSS_COMPILE=riscv64-unknown-linux-gnu- \
-         litex_rocket_defconfig litex_rocket_initramfs.config
+        litex_rocket_defconfig litex_rocket_initramfs.config
    make ARCH=riscv CROSS_COMPILE=riscv64-unknown-linux-gnu-
    popd
    ```
@@ -278,10 +278,10 @@ EOT
    pushd riscv-pk/build
    # NOTE: "--with-arch=rv64imac" is what enables BBL's FPU emulation!
    ../configure --host=riscv64-unknown-linux-gnu \
-                 --with-arch=rv64imac \
-                 --with-payload=../../linux/vmlinux \
-                 --with-dts=../../conf/nexys4ddr.dts \
-                 --enable-logo
+                --with-arch=rv64imac \
+                --with-payload=../../linux/vmlinux \
+                --with-dts=../../conf/nexys4ddr.dts \
+                --enable-logo
    make bbl
    riscv64-unknown-linux-gnu-objcopy -O binary bbl ../../boot.bin
    popd
