@@ -4,6 +4,8 @@ This repository demonstrates the capability to run 64-bit Linux on a
 SoC built with [LiteX](https://github.com/enjoy-digital/litex) and
 [RocketChip](https://github.com/chipsalliance/rocket-chip).
 
+![](https://user-images.githubusercontent.com/1450143/102630245-9bac1c80-414c-11eb-92c9-311fd4e06bea.png)
+
 ## Prerequisites:
 
 1. Miscellaneous supporting packages, most likely available from the
