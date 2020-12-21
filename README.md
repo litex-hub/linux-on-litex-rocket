@@ -13,7 +13,8 @@ SoC built with [LiteX](https://github.com/enjoy-digital/litex) and
 
    ```
    sudo dnf install openocd dtc fakeroot perl-bignum json-c-devel verilator \
-                    python3-devel libevent-devel libmpc-devel mpfr-devel
+                    python3-devel python3-setuptools libevent-devel \
+                    libmpc-devel mpfr-devel
    ```
 
    Some Linux distributions (e.g, Fedora) also provide packaged versions of
