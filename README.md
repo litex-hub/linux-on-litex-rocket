@@ -244,7 +244,7 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
    git clone https://github.com/litex-hub/linux.git
    cp initramfs.cpio linux/
    pushd linux
-   git checkout litex-rocket-rebase
+   git checkout litex-rebase
    make ARCH=riscv CROSS_COMPILE=riscv64-unknown-linux-gnu- \
         litex_rocket_defconfig litex_rocket_initramfs.config
    make ARCH=riscv CROSS_COMPILE=riscv64-unknown-linux-gnu-
