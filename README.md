@@ -91,7 +91,7 @@ assuming the board is connected to a USB port and powered on.
 1. LiteX+Rocket on the `nexys4ddr`:
 
    ```
-   litex-boards/litex_boards/targets/nexys4ddr.py --build --load \
+   litex-boards/litex_boards/targets/nexys4ddr.py --build [--load] \
       --cpu-type rocket --cpu-variant linux --sys-clk-freq 50e6 \
       --with-ethernet --with-sdcard --integrated-rom-size 0x10000
    ```
@@ -106,14 +106,14 @@ assuming the board is connected to a USB port and powered on.
 
    ```
    openocd -f litex-boards/litex_boards/prog/openocd_xc7_ft2232.cfg \
-           -c "transport select jtag; init;
-               pld load 0 build/nexys4ddr/gateware/nexys4ddr.bit; exit"
+           -c 'transport select jtag; init;
+               pld load 0 build/nexys4ddr/gateware/nexys4ddr.bit; exit'
    ```
 
 2. LiteX+Rocket on the `trellisboard`:
 
    ```
-   litex-boards/litex_boards/targets/trellisboard.py --build --load \
+   litex-boards/litex_boards/targets/trellisboard.py --build [--load] \
       --cpu-type rocket --cpu-variant linuxq --sys-clk-freq 50e6 \
       --with-ethernet --with-sdcard --integrated-rom-size 0x10000
    ```
@@ -134,14 +134,14 @@ assuming the board is connected to a USB port and powered on.
 
    ```
    openocd -f litex-boards/litex_boards/prog/openocd_trellisboard.cfg \
-           -c "transport select jtag; init;
-               svf build/trellisboard/gateware/trellisboard.svf; exit"
+           -c 'transport select jtag; init;
+               svf build/trellisboard/gateware/trellisboard.svf; exit'
    ```
 
 3. LiteX+Rocket on `versa_ecp5`:
 
    ```
-   litex-boards/litex_boards/targets/versa_ecp5.py --build --load \
+   litex-boards/litex_boards/targets/versa_ecp5.py --build [--load] \
       --cpu-type rocket --cpu-variant linuxd --sys-clk-freq 50e6 \
       --with-ethernet [--yosys-nowidelut]
    ```
@@ -176,8 +176,8 @@ assuming the board is connected to a USB port and powered on.
 
    ```
    openocd -f litex-boards/litex_boards/prog/openocd_versa_ecp5.cfg \
-           -c "transport select jtag; init;
-               svf build/trellisboard/gateware/versa_ecp5.svf; exit"
+           -c 'transport select jtag; init;
+               svf build/trellisboard/gateware/versa_ecp5.svf; exit'
    ```
 
 ## Building the Software (`boot.bin`: BusyBox, Linux, and BBL)
@@ -317,7 +317,7 @@ download `boot.bin` via TFTP from a server at `192.168.1.100`).
    partition on your microSD card, which should look something like this:
 
    ```
-   fdisk /dev/sdX
+   # fdisk /dev/sdX
 
    Welcome to fdisk (util-linux 2.35.2).
    Changes will remain in memory only, until you decide to write them.
@@ -368,10 +368,10 @@ download `boot.bin` via TFTP from a server at `192.168.1.100`).
    your network interface:
 
    ```
-   sudo ip addr add 192.168.1.100/24 scope global dev ETH0
+   sudo ip addr add 192.168.1.100/24 scope global dev <interface>
    ```
 
-   (replacing `ETH0` with whatever your relevant network interface is
+   (replacing `<interface>` with whatever your relevant network interface is
    actually named).
 
    Ensure the microSD slot is empty (as it takes precedence over Ethernet
