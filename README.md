@@ -414,3 +414,11 @@ download `boot.bin` via TFTP from a server at `192.168.1.100`).
 - improve Linux drivers for LiteX gateware, upstream 64- and 32-bit capable
   drivers into mainline Linux
 - ... and much more!
+
+## Paper & Presentation Links
+
+G. L. Somlo, "[Toward a Trustable, Self-Hosting Computer System](https://ieeexplore.ieee.org/document/9283874)", 2020 IEEE Security and Privacy Workshops (SPW), San Francisco, CA, 2020, pp. 136-143
+
+- [Paper PDF](http://www.contrib.andrew.cmu.edu/~somlo/BTCP/glsomlo_cresct_2020.pdf)
+- [Slides](http://www.contrib.andrew.cmu.edu/~somlo/BTCP/glsomlo_cresct_2020_slides.pdf)
+- [Video](https://youtu.be/5IhujGl_-K0)
