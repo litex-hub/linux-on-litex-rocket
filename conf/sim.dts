@@ -91,7 +91,7 @@
 			compatible = "litex,soc_controller";
 			reg = <0x12000000 0x0C>;
 		};
-		uart0: uart@12001800 {
+		uart0: uart@12002000 {
 			compatible = "litex,uart0";
 			reg = <0x12002000 0x800>;
 			interrupt-parent = <&L1>;
