@@ -59,7 +59,7 @@ SoC built with [LiteX](https://github.com/enjoy-digital/litex) and
    - [yosys](https://github.com/YosysHQ/yosys),
      [trellis](https://github.com/YosysHQ/prjtrellis), and
      [nextpnr](https://github.com/YosysHQ/nextpnr)
-     for Lattice ECP5 boards (e.g., `versa_ecp5`, `trellisboard`, etc.)<br>
+     for Lattice ECP5 boards (e.g., `versa_ecp5`, `trellisboard`, `ecpix5`, etc.)<br>
      You may be able to install these as distro-packages on e.g. Fedora
      (`sudo dnf install yosys trellis nextpnr`), or you may want to download
      and build their latest upstream sources, as they are being developed
@@ -73,7 +73,7 @@ download [here](https://github.com/litex-hub/linux-on-litex-rocket/issues/1).
 
 ## Building the Gateware (FPGA Bitstream):
 
-The three boards currently tested are `nexys4ddr`, `trellisboard`,
+The four boards currently tested are `nexys4ddr`, `trellisboard`, `ecpix5`,
 and `versa_ecp5`. Once all prerequisites are in place, building
 bitstream for each one is a relatively straightforward process.
 
@@ -138,7 +138,23 @@ assuming the board is connected to a USB port and powered on.
                svf build/trellisboard/gateware/trellisboard.svf; exit'
    ```
 
-3. LiteX+Rocket on `versa_ecp5`:
+3. Litex+Rocket on the `ecpix5`:
+
+   ```
+   litex-boards/litex_boards/targets/ecpix5.py --build [--load] \
+      --cpu-type rocket --cpu-variant linuxd --sys-clk-freq 50e6 \
+      --with-ethernet --with-sdcard --integrated-rom-size 0x10000
+   ```
+
+   To program the board with a pre-built bitstream file, run:
+
+   ```
+   openocd -f litex-boards/litex_boards/prog/openocd_ecpix5.cfg \
+           -c 'transport select jtag; init;
+               svf build/ecpix5/gateware/ecpix5.svf; exit'
+   ```
+
+4. LiteX+Rocket on `versa_ecp5`:
 
    ```
    litex-boards/litex_boards/targets/versa_ecp5.py --build [--load] \
@@ -177,7 +193,7 @@ assuming the board is connected to a USB port and powered on.
    ```
    openocd -f litex-boards/litex_boards/prog/openocd_versa_ecp5.cfg \
            -c 'transport select jtag; init;
-               svf build/trellisboard/gateware/versa_ecp5.svf; exit'
+               svf build/versa_ecp5/gateware/versa_ecp5.svf; exit'
    ```
 
 ## Building the Software (`boot.bin`: BusyBox, Linux, and BBL)
@@ -268,11 +284,11 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
    file, we provide pre-generated source files that can be embedded into BBL
    during compilation.
 
-   For now, we provide Device Tree source configurations matching all three
+   For now, we provide Device Tree source configurations matching all four
    FPGA development boards for which we know how to build a bitsream:
-   `nexys4ddr`, `trellisboard`, and `versa_ecp5`. The example below uses
+   `nexys4ddr`, `trellisboard`, `ecpix5`, and `versa_ecp5`. The example below uses
    [`nexys4ddr.dts`](conf/nexys4ddr.dts), but feel free to replace that with
-   [`trellisboard.dts`](conf/trellisboard.dts) or
+   [`trellisboard.dts`](conf/trellisboard.dts), [`ecpix5.dts`](conf/ecpix5.dts),  or
    [`versa_ecp5.dts`](conf/versa_ecp5.dts), as needed:
 
    ```
@@ -409,7 +425,7 @@ download `boot.bin` via TFTP from a server at `192.168.1.100`).
   - gpio-based card-detect and/or PMOD (external) SDCard reader for
     `trellisboard`
 - track `yosys`/`trellis`/`nextpnr` upstream for improved timing and
-    resource allocation on `trellisboard` and `versa_ecp5`
+    resource allocation on `trellisboard`, `ecpix5`, and `versa_ecp5`
 - port to more FPGA dev. boards (e.g., `genesys2`)
 - improve Linux drivers for LiteX gateware, upstream 64- and 32-bit capable
   drivers into mainline Linux
