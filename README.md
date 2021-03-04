@@ -162,31 +162,13 @@ assuming the board is connected to a USB port and powered on.
       --with-ethernet [--yosys-nowidelut]
    ```
 
-   In the past (cca mid-2019) this *used* to result in a bit under 99% LUT
-   utilization, and working Ethernet. As of right now, utilization comes in
-   at exactly 100%, and it's usually a coin-toss whether nextpnr manages to
-   squeeze it all into the 45k LUTs available on the ECP5 FPGA provisioned
-   on that board. To get it to build *eventually*, use the following loop:
-
-   ```
-   while true; do
-     rm -rf build/versa_ecp5
-     litex-boards/litex_boards/targets/versa_ecp5.py --build \
-        --cpu-type rocket --cpu-variant linuxd --sys-clk-freq 50e6 \
-        --with-ethernet --yosys-nowidelut --nextpnr-seed $RANDOM
-     (( $? == 0 )) && break
-   done
-   ```
-
    Adding the `--yosys-nowidelut` option to the build command line *might*
    result in a slightly tighter packing, possibly at the expense of some of
-   the timing budget. Adding `--nextpnr-seed $RANDOM` causes different seeds
-   to be used with the stochastic P&R process, increasing the chances of the
-   design fitting on the FPGA, eventually.
+   the timing budget.
 
-   The resulting design is *currently* unable to boot over Ethernet (using
-   tftp), although it *used* to be able to do so in the past (with older
-   versions of `LiteX`, `yosys`, `trellis`, and/or `nextpnr`).
+   There is no SDCard reader available on this board. Which is OK, given that
+   the 45k sized ECP5 FPGA doesn't have the capacity to support it anyway:
+   utilization approaches 99% for the design built using the above command.
 
    To program the board with a pre-built bitstream file, run:
 
@@ -238,8 +220,8 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
    EOT
    fakeroot <<- "EOT"
    mknod dev/null c 1 3
-   mknod dev/tty c 5 0
    mknod dev/zero c 1 5
+   mknod dev/tty c 5 0
    mknod dev/console c 5 1
    mknod dev/mmcblk0 b 179 0
    mknod dev/mmcblk0p1 b 179 1
