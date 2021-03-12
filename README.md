@@ -93,7 +93,7 @@ assuming the board is connected to a USB port and powered on.
    ```
    litex-boards/litex_boards/targets/nexys4ddr.py --build [--load] \
       --cpu-type rocket --cpu-variant linux --sys-clk-freq 50e6 \
-      --with-ethernet --with-sdcard --integrated-rom-size 0x10000
+      --with-ethernet --with-sdcard
    ```
 
    This is currently the most well-supported option, with the only "drawback"
@@ -115,7 +115,7 @@ assuming the board is connected to a USB port and powered on.
    ```
    litex-boards/litex_boards/targets/trellisboard.py --build [--load] \
       --cpu-type rocket --cpu-variant linuxq --sys-clk-freq 50e6 \
-      --with-ethernet --with-sdcard --integrated-rom-size 0x10000
+      --with-ethernet --with-sdcard
    ```
 
    Unlike the `nexys4ddr`, the built-in SDCard reader on this board does not
@@ -143,7 +143,7 @@ assuming the board is connected to a USB port and powered on.
    ```
    litex-boards/litex_boards/targets/ecpix5.py --build [--load] \
       --cpu-type rocket --cpu-variant linuxd --sys-clk-freq 50e6 \
-      --with-ethernet --with-sdcard --integrated-rom-size 0x10000
+      --with-ethernet --with-sdcard
    ```
 
    To program the board with a pre-built bitstream file, run:
@@ -219,11 +219,11 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
    /dev/console::sysinit:-/bin/ash
    EOT
    fakeroot <<- "EOT"
-   mknod dev/null c 1 3
-   mknod dev/zero c 1 5
-   mknod dev/tty c 5 0
+   mknod dev/null    c 1 3
+   mknod dev/zero    c 1 5
+   mknod dev/tty     c 5 0
    mknod dev/console c 5 1
-   mknod dev/mmcblk0 b 179 0
+   mknod dev/mmcblk0   b 179 0
    mknod dev/mmcblk0p1 b 179 1
    mknod dev/mmcblk0p2 b 179 2
    find . | cpio -H newc -o > ../initramfs.cpio
