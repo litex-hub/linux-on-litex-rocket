@@ -55,11 +55,12 @@ SoC built with [LiteX](https://github.com/enjoy-digital/litex) and
    ```
 
 4. One or more HDL toolchains, as appropriate for your specific FPGA board:
-   - Vivado (e.g., 2018.2) for Xilinx boards (e.g., `nexys4ddr`)
+   - Vivado (e.g., 2018.2) for Xilinx boards (e.g., `digilent_nexys4ddr`)
    - [yosys](https://github.com/YosysHQ/yosys),
      [trellis](https://github.com/YosysHQ/prjtrellis), and
      [nextpnr](https://github.com/YosysHQ/nextpnr)
-     for Lattice ECP5 boards (e.g., `versa_ecp5`, `trellisboard`, `ecpix5`, etc.)<br>
+     for Lattice ECP5 boards (e.g., `lattice_versa_ecp5`, `trellisboard`,
+     `lambdaconcept_ecpix5`, etc.)<br>
      You may be able to install these as distro-packages on e.g. Fedora
      (`sudo dnf install yosys trellis nextpnr`), or you may want to download
      and build their latest upstream sources, as they are being developed
@@ -73,25 +74,25 @@ download [here](https://github.com/litex-hub/linux-on-litex-rocket/issues/1).
 
 ## Building the Gateware (FPGA Bitstream):
 
-The four boards currently tested are `nexys4ddr`, `trellisboard`, `ecpix5`,
-and `versa_ecp5`. Once all prerequisites are in place, building
-bitstream for each one is a relatively straightforward process.
+The four boards currently tested are `digilent_nexys4ddr`, `trellisboard`,
+`lambdaconcept_ecpix5`, and `lattice_versa_ecp5`. Once all prerequisites are in
+place, building bitstream for each one is a relatively straightforward process.
 
 ***NOTE 1***: The difference between the `linux`, `linuxd`, and `linuxq`
 variants of the Rocket cpu-type is in the bit width of the point-to-point
 AXI link connecting the CPU and LiteDRAM controller specific to each particular
-board model. On `nexys4ddr`, LiteDRAM has a native port width of 64 bits;
+board model. On `digilent_nexys4ddr`, LiteDRAM has a native port width of 64 bits;
 on the `trellisboard`, the native LiteDRAM width is 256 bits; finally, on
-the `versa_ecp5`, LiteDRAM is 128 bit wide.
+the `lattice_versa_ecp5`, LiteDRAM is 128 bit wide.
 
 ***NOTE 2***: The `--load` option on the command line examples below will
 have the builder invoke `openocd` to push the bitstream to the board,
 assuming the board is connected to a USB port and powered on.
 
-1. LiteX+Rocket on the `nexys4ddr`:
+1. LiteX+Rocket on the `digilent_nexys4ddr`:
 
    ```
-   litex-boards/litex_boards/targets/nexys4ddr.py --build [--load] \
+   litex-boards/litex_boards/targets/digilent_nexys4ddr.py --build [--load] \
       --cpu-type rocket --cpu-variant linux --sys-clk-freq 50e6 \
       --with-ethernet --with-sdcard
    ```
@@ -107,7 +108,7 @@ assuming the board is connected to a USB port and powered on.
    ```
    openocd -f litex-boards/litex_boards/prog/openocd_xc7_ft2232.cfg \
            -c 'transport select jtag; init;
-               pld load 0 build/nexys4ddr/gateware/nexys4ddr.bit; exit'
+               pld load 0 build/digilent_nexys4ddr/gateware/digilent_nexys4ddr.bit; exit'
    ```
 
 2. LiteX+Rocket on the `trellisboard`:
@@ -118,8 +119,8 @@ assuming the board is connected to a USB port and powered on.
       --with-ethernet --with-sdcard
    ```
 
-   Unlike the `nexys4ddr`, the built-in SDCard reader on this board does not
-   have a card-detect pin, so the SDCard must be inserted when the kernel
+   Unlike the `digilent_nexys4ddr`, the built-in SDCard reader on this board does
+   not have a card-detect pin, so the SDCard must be inserted when the kernel
    boots, and can't be ejected while the kernel runs. Ethernet works fine
    both during tftp-boot and under Linux, and booting from SDCard also works
    well. SDCard behavior under Linux suffers from lots of data transfer errors
@@ -138,10 +139,10 @@ assuming the board is connected to a USB port and powered on.
                svf build/trellisboard/gateware/trellisboard.svf; exit'
    ```
 
-3. Litex+Rocket on the `ecpix5`:
+3. Litex+Rocket on the `lambdaconcept_ecpix5`:
 
    ```
-   litex-boards/litex_boards/targets/ecpix5.py --build [--load] \
+   litex-boards/litex_boards/targets/lambdaconcept_ecpix5.py --build [--load] \
       --cpu-type rocket --cpu-variant linuxd --sys-clk-freq 50e6 \
       --with-ethernet --with-sdcard
    ```
@@ -151,13 +152,13 @@ assuming the board is connected to a USB port and powered on.
    ```
    openocd -f litex-boards/litex_boards/prog/openocd_ecpix5.cfg \
            -c 'transport select jtag; init;
-               svf build/ecpix5/gateware/ecpix5.svf; exit'
+               svf build/lambdaconcept_ecpix5/gateware/lambdaconcept_ecpix5.svf; exit'
    ```
 
-4. LiteX+Rocket on `versa_ecp5`:
+4. LiteX+Rocket on `lattice_versa_ecp5`:
 
    ```
-   litex-boards/litex_boards/targets/versa_ecp5.py --build [--load] \
+   litex-boards/litex_boards/targets/lattice_versa_ecp5.py --build [--load] \
       --cpu-type rocket --cpu-variant linuxd --sys-clk-freq 50e6 \
       --with-ethernet [--yosys-nowidelut]
    ```
@@ -175,7 +176,7 @@ assuming the board is connected to a USB port and powered on.
    ```
    openocd -f litex-boards/litex_boards/prog/openocd_versa_ecp5.cfg \
            -c 'transport select jtag; init;
-               svf build/versa_ecp5/gateware/versa_ecp5.svf; exit'
+               svf build/lattice_versa_ecp5/gateware/lattice_versa_ecp5.svf; exit'
    ```
 
 ## Building the Software (`boot.bin`: BusyBox, Linux, and BBL)
@@ -268,10 +269,12 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
 
    For now, we provide Device Tree source configurations matching all four
    FPGA development boards for which we know how to build a bitsream:
-   `nexys4ddr`, `trellisboard`, `ecpix5`, and `versa_ecp5`. The example below uses
-   [`nexys4ddr.dts`](conf/nexys4ddr.dts), but feel free to replace that with
-   [`trellisboard.dts`](conf/trellisboard.dts), [`ecpix5.dts`](conf/ecpix5.dts),  or
-   [`versa_ecp5.dts`](conf/versa_ecp5.dts), as needed:
+   `digilent_nexys4ddr`, `trellisboard`, `lambdaconcept_ecpix5`, and
+   `lattice_versa_ecp5`. The example below uses
+   [`digilent_nexys4ddr.dts`](conf/digilent_nexys4ddr.dts), but feel free
+   to replace that with [`trellisboard.dts`](conf/trellisboard.dts),
+   [`lambdaconcept_ecpix5.dts`](conf/lambdaconcept_ecpix5.dts),  or
+   [`lattice_versa_ecp5.dts`](conf/lattice_versa_ecp5.dts), as needed:
 
    ```
    git clone https://github.com/riscv/riscv-pk
@@ -281,7 +284,7 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
    ../configure --host=riscv64-unknown-linux-gnu \
                 --with-arch=rv64imac \
                 --with-payload=../../linux/vmlinux \
-                --with-dts=../../conf/nexys4ddr.dts \
+                --with-dts=../../conf/digilent_nexys4ddr.dts \
                 --enable-logo
    make bbl
    riscv64-unknown-linux-gnu-objcopy -O binary bbl ../../boot.bin
@@ -403,12 +406,13 @@ download `boot.bin` via TFTP from a server at `192.168.1.100`).
 ## Future Work (TODO List)
 
 - Improve LiteSDCard performance
-  - data transfer timeouts on `nexys4ddr`
+  - LiteSDCard data transfer glitches
   - gpio-based card-detect and/or PMOD (external) SDCard reader for
     `trellisboard`
-- track `yosys`/`trellis`/`nextpnr` upstream for improved timing and
-    resource allocation on `trellisboard`, `ecpix5`, and `versa_ecp5`
-- port to more FPGA dev. boards (e.g., `genesys2`)
+- update `json2dts.py` to automatically generate device tree source files
+  for LiteX+Rocket SoCs.
+- port to more FPGA dev. boards (e.g., `digilent_genesys2`,
+  `digilent_nexys_video`, etc.)
 - improve Linux drivers for LiteX gateware, upstream 64- and 32-bit capable
   drivers into mainline Linux
 - ... and much more!
