@@ -88,24 +88,22 @@
 			reg-names = "mem";
 		};
 		soc_ctrl0: soc_controller@12000000 {
-			compatible = "litex,soc_controller";
-			reg = <0x12000000 0x0C>;
+			compatible = "litex,soc-controller";
+			reg = <0x12000000 0xc>;
 		};
-		uart0: uart@12002000 {
-			compatible = "litex,uart0";
-			reg = <0x12002000 0x800>;
-			interrupt-parent = <&L1>;
+		liteuart0: serial@12004000 {
+			compatible = "litex,liteuart";
+			reg = <0x12004000 0x100>;
 			interrupts = <1>;
 		};
-		mac0: mac@0x12004000 {
+		mac0: mac@12001000 {
 			compatible = "litex,liteeth";
-			reg = <0x12004800  0xF0
-				0x12004000 0x18
-				0x30000000 0x2000>;
-			interrupt-parent = <&L1>;
-			interrupts = <3>;
+			reg = <0x12001000 0x7c>,
+				<0x12001800 0x0a>,
+				<0x30000000 0x2000>;
 			tx-fifo-depth = <2>;
 			rx-fifo-depth = <2>;
+			interrupts = <3>;
 		};
 	};
 };

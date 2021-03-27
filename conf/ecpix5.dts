@@ -88,46 +88,29 @@
 			reg-names = "mem";
 		};
 		soc_ctrl0: soc_controller@12000000 {
-			compatible = "litex,soc_controller";
-			reg = <0x12000000 0x0C>;
+			compatible = "litex,soc-controller";
+			reg = <0x12000000 0xc>;
 		};
-		uart0: uart@12002000 {
-			compatible = "litex,uart0";
-			reg = <0x12002000 0x800>;
-			interrupt-parent = <&L1>;
+		liteuart0: serial@12006800 {
+			compatible = "litex,liteuart";
+			reg = <0x12006800 0x100>;
 			interrupts = <1>;
 		};
-		mac0: mac@0x12004000 {
+		mac0: mac@12001000 {
 			compatible = "litex,liteeth";
-			reg = <0x12004800  0xF0
-				0x12004000 0x18
-				0x30000000 0x2000>;
-			interrupt-parent = <&L1>;
-			interrupts = <3>;
+			reg = <0x12001000 0x7c>,
+				<0x12001800 0x0a>,
+				<0x30000000 0x2000>;
 			tx-fifo-depth = <2>;
 			rx-fifo-depth = <2>;
+			interrupts = <3>;
 		};
-/* if gateware/bitstream was built with `--with-spi-sdcard`, use this instead:
-		litespi0: spi@12005800 {
-			compatible = "litex,litespi";
-			reg = <0x12005800 0x100>;
-			litespi,max-bpw = <8>;
-			litespi,sck-frequency = <15000000>;
-			litespi,num-cs = <1>;
-			mmc-slot@0x00 {
-				compatible = "mmc-spi-slot";
-				reg = <0x00>;
-				voltage-ranges = <3300 3300>;
-				spi-max-frequency = <15000000>;
-			};
-		};
-*/
-		mmc@12005800 {
+		mmc0: mmc@12005000 {
 			compatible = "litex,mmc";
-			reg =  <0x12005800 0x100
-				0x12006000 0x100
-				0x12006800 0x100
-				0x12007000 0x100>;
+			reg = <0x12005000 0x100>,
+				<0x12003800 0x100>,
+				<0x12003000 0x100>,
+				<0x12004800 0x100>;
 			bus-width = <0x04>;
 		};
 	};
