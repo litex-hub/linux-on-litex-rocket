@@ -85,6 +85,32 @@ board model. On `digilent_nexys4ddr`, LiteDRAM has a native port width of 64 bit
 on the `trellisboard`, the native LiteDRAM width is 256 bits; finally, on
 the `lattice_versa_ecp5`, LiteDRAM is 128 bit wide.
 
+How to tell what the appropriate port width is on a ***new*** board?
+Right after starting the bitstream build process, watch for output that looks
+like this:
+
+```
+INFO:SoCBusHandler:main_ram Region added at Origin: 0x80000000,
+     Size: 0xXXXXXXX, Mode: RW, Cached: True Linker: False.
+```
+
+followed by either:
+
+```
+INFO:SoC:Matching AXI MEM data width (XXX)
+```
+
+or
+
+```
+INFO:SoC:Converting MEM data width: XXX to YYY via Wishbone
+```
+
+In the second case, `XXX` is the LiteDRAM port width, and `YYY` is the CPU's
+AXI memory port width. It is highly recommended to use a CPU variant whose
+AXI memory port width matches that of LiteDRAM!
+
+
 ***NOTE 2***: The `--load` option on the command line examples below will
 have the builder invoke `openocd` to push the bitstream to the board,
 assuming the board is connected to a USB port and powered on.
