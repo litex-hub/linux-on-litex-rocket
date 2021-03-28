@@ -271,10 +271,10 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
    FPGA development boards for which we know how to build a bitsream:
    `digilent_nexys4ddr`, `trellisboard`, `lambdaconcept_ecpix5`, and
    `lattice_versa_ecp5`. The example below uses
-   [`digilent_nexys4ddr.dts`](conf/digilent_nexys4ddr.dts), but feel free
+   [`nexys4ddr.dts`](conf/nexys4ddr.dts), but feel free
    to replace that with [`trellisboard.dts`](conf/trellisboard.dts),
-   [`lambdaconcept_ecpix5.dts`](conf/lambdaconcept_ecpix5.dts),  or
-   [`lattice_versa_ecp5.dts`](conf/lattice_versa_ecp5.dts), as needed:
+   [`ecpix5.dts`](conf/ecpix5.dts),  or
+   [`versa_ecp5.dts`](conf/versa_ecp5.dts), as needed:
 
    ```
    git clone https://github.com/riscv/riscv-pk
@@ -284,7 +284,7 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
    ../configure --host=riscv64-unknown-linux-gnu \
                 --with-arch=rv64imac \
                 --with-payload=../../linux/vmlinux \
-                --with-dts=../../conf/digilent_nexys4ddr.dts \
+                --with-dts=../../conf/nexys4ddr.dts \
                 --enable-logo
    make bbl
    riscv64-unknown-linux-gnu-objcopy -O binary bbl ../../boot.bin
