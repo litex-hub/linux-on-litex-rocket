@@ -81,9 +81,9 @@ place, building bitstream for each one is a relatively straightforward process.
 ***NOTE 1***: The difference between the `linux`, `linuxd`, and `linuxq`
 variants of the Rocket cpu-type is in the bit width of the point-to-point
 AXI link connecting the CPU and LiteDRAM controller specific to each particular
-board model. On `digilent_nexys4ddr`, LiteDRAM has a native port width of 64 bits;
-on the `trellisboard`, the native LiteDRAM width is 256 bits; finally, on
-the `lattice_versa_ecp5`, LiteDRAM is 128 bit wide.
+board model. On `digilent_nexys4ddr`, LiteDRAM has a native port width of 64
+bits; on the `trellisboard`, the native LiteDRAM width is 256 bits; finally, on
+both `lambdaconcept_ecpix5` and `lattice_versa_ecp5`, LiteDRAM is 128 bit wide.
 
 How to tell what the appropriate port width is on a ***new*** board?
 Right after starting the bitstream build process, watch for output that looks
@@ -145,17 +145,11 @@ assuming the board is connected to a USB port and powered on.
       --with-ethernet --with-sdcard
    ```
 
-   Unlike the `digilent_nexys4ddr`, the built-in SDCard reader on this board does
-   not have a card-detect pin, so the SDCard must be inserted when the kernel
-   boots, and can't be ejected while the kernel runs. Ethernet works fine
-   both during tftp-boot and under Linux, and booting from SDCard also works
-   well. SDCard behavior under Linux suffers from lots of data transfer errors
-   and timeouts, so it's not really usable at the moment.<br>
+   Unlike the `digilent_nexys4ddr`, the built-in SDCard reader on this board
+   does not have a card-detect pin, so the SDCard must be inserted when the
+   kernel boots, and can't be ejected while the kernel runs.<br>
    There's an option to use an external pmod SDCard reader, which *does* offer
    a card-detect pin. Testing in that configuration is pending.<br>
-   Finally, `nextpnr` does not currently offer a solution that passes timing;
-   however, things seem to *mostly* work, as the timing data used by the tool
-   at the moment is known to be overly conservative.
 
    To program the board with a pre-built bitstream file, run:
 
