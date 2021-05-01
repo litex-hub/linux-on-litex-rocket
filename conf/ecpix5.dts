@@ -94,6 +94,7 @@
 		liteuart0: serial@12006800 {
 			compatible = "litex,liteuart";
 			reg = <0x12006800 0x100>;
+			interrupt-parent = <&L1>;
 			interrupts = <1>;
 		};
 		mac0: mac@12001000 {
@@ -103,6 +104,7 @@
 				<0x30000000 0x2000>;
 			tx-fifo-depth = <2>;
 			rx-fifo-depth = <2>;
+			interrupt-parent = <&L1>;
 			interrupts = <3>;
 		};
 		mmc0: mmc@12005000 {
@@ -110,8 +112,11 @@
 			reg = <0x12005000 0x100>,
 				<0x12003800 0x100>,
 				<0x12003000 0x100>,
-				<0x12004800 0x100>;
+				<0x12004800 0x100>,
+				<0x12004o00 0x100>;
 			bus-width = <0x04>;
+			interrupt-parent = <&L1>;
+			interrupts = <4>;
 		};
 	};
 };

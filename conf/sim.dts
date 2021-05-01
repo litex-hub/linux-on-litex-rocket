@@ -91,9 +91,10 @@
 			compatible = "litex,soc-controller";
 			reg = <0x12001000 0xc>;
 		};
-			liteuart0: serial@12002800 {
+		liteuart0: serial@12002800 {
 			compatible = "litex,liteuart";
 			reg = <0x12002800 0x100>;
+			interrupt-parent = <&L1>;
 			interrupts = <1>;
 		};
 		mac0: mac@12000800 {
@@ -103,6 +104,7 @@
 				<0x30000000 0x2000>;
 			tx-fifo-depth = <2>;
 			rx-fifo-depth = <2>;
+			interrupt-parent = <&L1>;
 			interrupts = <3>;
 		};
 	};
