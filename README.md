@@ -234,19 +234,13 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
    ln -s bin/busybox ./init
    cat > etc/inittab <<- "EOT"
    ::sysinit:/bin/busybox mount -t proc proc /proc
+   ::sysinit:/bin/busybox mount -t devtmpfs devtmpfs /dev
    ::sysinit:/bin/busybox mount -t tmpfs tmpfs /tmp
    ::sysinit:/bin/busybox mount -t sysfs sysfs /sys
    ::sysinit:/bin/busybox --install -s
    /dev/console::sysinit:-/bin/ash
    EOT
    fakeroot <<- "EOT"
-   mknod dev/null    c 1 3
-   mknod dev/zero    c 1 5
-   mknod dev/tty     c 5 0
-   mknod dev/console c 5 1
-   mknod dev/mmcblk0   b 179 0
-   mknod dev/mmcblk0p1 b 179 1
-   mknod dev/mmcblk0p2 b 179 2
    find . | cpio -H newc -o > ../initramfs.cpio
    EOT
    popd
