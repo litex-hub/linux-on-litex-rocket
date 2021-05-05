@@ -6,7 +6,7 @@
 	compatible = "freechips,rocketchip-unknown-dev";
 	model = "freechips,rocketchip-unknown";
 	chosen {
-		bootargs = "earlycon=sbi console=hvc0 swiotlb=noforce";
+		bootargs = "earlycon=sbi console=liteuart swiotlb=noforce";
 	};
 	L13: cpus {
 		#address-cells = <1>;
