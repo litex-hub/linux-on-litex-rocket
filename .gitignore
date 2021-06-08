@@ -1,1 +1,6 @@
 bin/*
+build/*
+busybox-1.31.0
+initramfs/*
+prog/*
+riscv-pk/*
