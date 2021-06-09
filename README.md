@@ -74,16 +74,18 @@ download [here](https://github.com/litex-hub/linux-on-litex-rocket/issues/1).
 
 ## Building the Gateware (FPGA Bitstream):
 
-The four boards currently tested are `digilent_nexys4ddr`, `trellisboard`,
-`lambdaconcept_ecpix5`, and `lattice_versa_ecp5`. Once all prerequisites are in
-place, building bitstream for each one is a relatively straightforward process.
+The five boards currently tested are `digilent_nexys4ddr`, `trellisboard`,
+`lambdaconcept_ecpix5`, `lattice_versa_ecp5`, and `digilent_arty`. Once all
+prerequisites are in place, building bitstream for each one is a relatively
+straightforward process.
 
 ***NOTE 1***: The difference between the `linux`, `linuxd`, and `linuxq`
 variants of the Rocket cpu-type is in the bit width of the point-to-point
 AXI link connecting the CPU and LiteDRAM controller specific to each particular
-board model. On `digilent_nexys4ddr`, LiteDRAM has a native port width of 64
-bits; on the `trellisboard`, the native LiteDRAM width is 256 bits; finally, on
-both `lambdaconcept_ecpix5` and `lattice_versa_ecp5`, LiteDRAM is 128 bit wide.
+board model. On `digilent_nexys4ddr`, LiteDRAM has a native port width of
+64 bits; on the `trellisboard`, the native LiteDRAM width is 256 bits; finally,
+on both `lambdaconcept_ecpix5`, `lattice_versa_ecp5` and `digilent_arty`,
+LiteDRAM is 128 bit wide.
 
 How to tell what the appropriate port width is on a ***new*** board?
 Right after starting the bitstream build process, watch for output that looks
@@ -199,6 +201,20 @@ assuming the board is connected to a USB port and powered on.
                svf build/lattice_versa_ecp5/gateware/lattice_versa_ecp5.svf; exit'
    ```
 
+5. LiteX+Rocket on the `digilent_arty`:
+
+   ```
+   litex-boards/litex_boards/targets/digilent_arty.py --build [--load] \
+      --cpu-type rocket --cpu-variant linuxd --sys-clk-freq 50e6 \
+      --with-ethernet --variant=a7-100
+   ```
+
+   Relies on a proprietary non-FOSS HDL toolchain (Vivado). The design
+   passes timing at 50MHz and Ethernet (and operation under Linux) works.
+   The `a7-35` variant is probably too small to fit Rocket.
+
+   To program the board with a pre-built bitstream file use the `--load` option.
+
 ## Building the Software (`boot.bin`: BusyBox, Linux, and BBL)
 
 To keep things simple, we embed a BusyBox based initial RAM filesystem
@@ -283,12 +299,12 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
 
    For now, we provide Device Tree source configurations matching all four
    FPGA development boards for which we know how to build a bitsream:
-   `digilent_nexys4ddr`, `trellisboard`, `lambdaconcept_ecpix5`, and
-   `lattice_versa_ecp5`. The example below uses
+   `digilent_nexys4ddr`, `trellisboard`, `lambdaconcept_ecpix5`,
+   `lattice_versa_ecp5` and `digilent_arty`. The example below uses
    [`nexys4ddr.dts`](conf/nexys4ddr.dts), but feel free
    to replace that with [`trellisboard.dts`](conf/trellisboard.dts),
-   [`ecpix5.dts`](conf/ecpix5.dts),  or
-   [`versa_ecp5.dts`](conf/versa_ecp5.dts), as needed:
+   [`ecpix5.dts`](conf/ecpix5.dts), [`versa_ecp5.dts`](conf/versa_ecp5.dts),
+   or [`arty.dts`](conf/arty.dts) as needed:
 
    ```
    git clone https://github.com/riscv/riscv-pk
