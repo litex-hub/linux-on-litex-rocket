@@ -99,11 +99,13 @@
 		};
 		mac0: mac@12000800 {
 			compatible = "litex,liteeth";
-			reg = <0x12000800 0x7c>,
-				<0x12000000 0x0a>,
+			reg = <0x12000800 0x100>,
+				<0x12000000 0x100>,
 				<0x30000000 0x2000>;
-			tx-fifo-depth = <2>;
-			rx-fifo-depth = <2>;
+			reg-names = "mac", "mdio", "buffer";
+			litex,rx-slots = <2>;
+			litex,tx-slots = <2>;
+			litex,slot-size = <0x800>;
 			interrupt-parent = <&L1>;
 			interrupts = <3>;
 		};
