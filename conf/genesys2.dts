@@ -11,28 +11,27 @@
 	L13: cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		timebase-frequency = <500000>;
+		timebase-frequency = <1000000>;
 		L6: cpu@0 {
-			clock-frequency = <50000000>;
+			clock-frequency = <100000000>;
 			compatible = "sifive,rocket0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
-			d-cache-size = <4096>;
+			d-cache-size = <16384>;
 			d-tlb-sets = <1>;
-			d-tlb-size = <4>;
+			d-tlb-size = <32>;
 			device_type = "cpu";
 			hardware-exec-breakpoint-count = <1>;
 			i-cache-block-size = <64>;
 			i-cache-sets = <64>;
-			i-cache-size = <4096>;
+			i-cache-size = <16384>;
 			i-tlb-sets = <1>;
-			i-tlb-size = <4>;
+			i-tlb-size = <32>;
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x0>;
-			/* FIXME: blatant lie! BBL should s/imac/imafdc/;
-			   https://github.com/riscv/riscv-pk/issues/166 */
 			riscv,isa = "rv64imafdc";
+			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
 			tlb-split;
@@ -43,26 +42,25 @@
 			};
 		};
 		L16: cpu@1 {
-			clock-frequency = <50000000>;
+			clock-frequency = <100000000>;
 			compatible = "sifive,rocket0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
-			d-cache-size = <4096>;
+			d-cache-size = <16384>;
 			d-tlb-sets = <1>;
-			d-tlb-size = <4>;
+			d-tlb-size = <32>;
 			device_type = "cpu";
 			hardware-exec-breakpoint-count = <1>;
 			i-cache-block-size = <64>;
 			i-cache-sets = <64>;
-			i-cache-size = <4096>;
+			i-cache-size = <16384>;
 			i-tlb-sets = <1>;
-			i-tlb-size = <4>;
+			i-tlb-size = <32>;
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x1>;
-			/* FIXME: blatant lie! BBL should s/imac/imafdc/;
-			   https://github.com/riscv/riscv-pk/issues/166 */
 			riscv,isa = "rv64imafdc";
+			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
 			tlb-split;
@@ -73,26 +71,25 @@
 			};
 		};
 		L26: cpu@2 {
-			clock-frequency = <50000000>;
+			clock-frequency = <100000000>;
 			compatible = "sifive,rocket0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
-			d-cache-size = <4096>;
+			d-cache-size = <16384>;
 			d-tlb-sets = <1>;
-			d-tlb-size = <4>;
+			d-tlb-size = <32>;
 			device_type = "cpu";
 			hardware-exec-breakpoint-count = <1>;
 			i-cache-block-size = <64>;
 			i-cache-sets = <64>;
-			i-cache-size = <4096>;
+			i-cache-size = <16384>;
 			i-tlb-sets = <1>;
-			i-tlb-size = <4>;
+			i-tlb-size = <32>;
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x2>;
-			/* FIXME: blatant lie! BBL should s/imac/imafdc/;
-			   https://github.com/riscv/riscv-pk/issues/166 */
 			riscv,isa = "rv64imafdc";
+			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
 			tlb-split;
@@ -103,26 +100,25 @@
 			};
 		};
 		L36: cpu@3 {
-			clock-frequency = <50000000>;
+			clock-frequency = <100000000>;
 			compatible = "sifive,rocket0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
-			d-cache-size = <4096>;
+			d-cache-size = <16384>;
 			d-tlb-sets = <1>;
-			d-tlb-size = <4>;
+			d-tlb-size = <32>;
 			device_type = "cpu";
 			hardware-exec-breakpoint-count = <1>;
 			i-cache-block-size = <64>;
 			i-cache-sets = <64>;
-			i-cache-size = <4096>;
+			i-cache-size = <16384>;
 			i-tlb-sets = <1>;
-			i-tlb-size = <4>;
+			i-tlb-size = <32>;
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x3>;
-			/* FIXME: blatant lie! BBL should s/imac/imafdc/;
-			   https://github.com/riscv/riscv-pk/issues/166 */
 			riscv,isa = "rv64imafdc";
+			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
 			tlb-split;
@@ -135,7 +131,7 @@
 	};
 	L8: memory@80000000 {
 		device_type = "memory";
-		reg = <0x80000000 0x08000000>; /* 128MB (nexys4ddr/ecp5versa) */
+		reg = <0x80000000 0x40000000>; /* 1GB (trellis, genesys2) */
 	};
 	L12: soc {
 		#address-cells = <1>;

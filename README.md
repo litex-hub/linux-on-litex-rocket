@@ -55,7 +55,7 @@ SoC built with [LiteX](https://github.com/enjoy-digital/litex) and
    ```
 
 4. One or more HDL toolchains, as appropriate for your specific FPGA board:
-   - Vivado (e.g., 2018.2) for Xilinx boards (e.g., `digilent_nexys4ddr`)
+   - Vivado (e.g., 2018.2) for Xilinx boards (e.g., `digilent_*`)
    - [yosys](https://github.com/YosysHQ/yosys),
      [trellis](https://github.com/YosysHQ/prjtrellis), and
      [nextpnr](https://github.com/YosysHQ/nextpnr)
@@ -74,8 +74,9 @@ download [here](https://github.com/litex-hub/linux-on-litex-rocket/issues/1).
 
 ## Building the Gateware (FPGA Bitstream):
 
-The five boards currently tested are `digilent_nexys4ddr`, `trellisboard`,
-`lambdaconcept_ecpix5`, `lattice_versa_ecp5`, and `digilent_arty`. Once all
+The boards currently tested are
+`digilent_[nexys4ddr|arty|nexys_video|genesys2]`,
+`trellisboard`, `lambdaconcept_ecpix5`, and `lattice_versa_ecp5`. Once all
 prerequisites are in place, building bitstream for each one is a relatively
 straightforward process.
 
@@ -83,9 +84,9 @@ straightforward process.
 variants of the Rocket cpu-type is in the bit width of the point-to-point
 AXI link connecting the CPU and LiteDRAM controller specific to each particular
 board model. On `digilent_nexys4ddr`, LiteDRAM has a native port width of
-64 bits; on the `trellisboard`, the native LiteDRAM width is 256 bits; finally,
-on both `lambdaconcept_ecpix5`, `lattice_versa_ecp5` and `digilent_arty`,
-LiteDRAM is 128 bit wide.
+64 bits; on the `trellisboard` and `digilent_genesys2`, the native LiteDRAM
+width is 256 bits; finally, on `lambdaconcept_ecpix5`, `lattice_versa_ecp5`,
+`digilent_arty`, and `digilent_nexys_video`, LiteDRAM is 128 bit wide.
 
 How to tell what the appropriate port width is on a ***new*** board?
 Right after starting the bitstream build process, watch for output that looks
@@ -121,14 +122,14 @@ assuming the board is connected to a USB port and powered on.
 
    ```
    litex-boards/litex_boards/targets/digilent_nexys4ddr.py --build [--load] \
-      --cpu-type rocket --cpu-variant linux --sys-clk-freq 50e6 \
+      --cpu-type rocket --cpu-variant linux4 --sys-clk-freq 50e6 \
       --with-ethernet --with-sdcard
    ```
 
    This is currently the most well-supported option, with the only "drawback"
    that it relies on a proprietary non-FOSS HDL toolchain (Vivado). The design
-   passes timing at 50MHz, and both Ethernet and SDCard booting (and operation
-   under Linux) works (with the occasional LiteSDCard read data transfer
+   passes timing at 50MHz; SMP, Ethernet and SDCard booting (and operation
+   under Linux) work (with the occasional LiteSDCard read data transfer
    timeout).
 
    To program the board with a pre-built bitstream file, run:
@@ -138,6 +139,22 @@ assuming the board is connected to a USB port and powered on.
            -c 'transport select jtag; init;
                pld load 0 build/digilent_nexys4ddr/gateware/digilent_nexys4ddr.bit; exit'
    ```
+
+   **Alternative configuration:**
+
+   The Artix7 FPGA provisioned on the `digilent_nexys4ddr` board has enough
+   capacity to support enabling Rocket's FPU option in gateware (designated
+   as the `full` variant in the list of pre-generated verilog configurations
+   offered by the `pythondata-cpu-rocket` package):
+
+   ```
+   litex-boards/litex_boards/targets/digilent_nexys4ddr.py --build [--load] \
+      --cpu-type rocket --cpu-variant full --sys-clk-freq 50e6 \
+      --with-ethernet --with-sdcard
+   ```
+
+   ***NOTE***: When building BBL as part of the software later on, be sure to
+   use the matching DTS file, [`nexys4ddr_fpu.dts`](conf/nexys4ddr_fpu.dts)!
 
 2. LiteX+Rocket on the `trellisboard`:
 
@@ -214,6 +231,28 @@ assuming the board is connected to a USB port and powered on.
    The `a7-35` variant is probably too small to fit Rocket.
 
    To program the board with a pre-built bitstream file use the `--load` option.
+
+6. LiteX+Rocket on the `digilent_nexys_video`:
+
+   ```
+   litex-boards/litex_boards/targets/digilent_nexys_video.py --build [--load] \
+      --cpu-type rocket --cpu-variant full4d --sys-clk-freq 50e6 \
+      --with-ethernet --with-sdcard
+   ```
+
+   Relies on a proprietary non-FOSS HDL toolchain (Vivado). The design
+   passes timing at 50MHz.
+
+6. LiteX+Rocket on the `digilent_genesys2`:
+
+   ```
+   litex-boards/litex_boards/targets/digilent_genesys2.py --build [--load] \
+      --cpu-type rocket --cpu-variant full4q --sys-clk-freq 100e6 \
+      --with-ethernet --with-sdcard
+   ```
+
+   Relies on a proprietary non-FOSS HDL toolchain (Vivado). The design
+   passes timing at 100MHz.
 
 ## Building the Software (`boot.bin`: BusyBox, Linux, and BBL)
 
@@ -297,14 +336,10 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
    file, we provide pre-generated source files that can be embedded into BBL
    during compilation.
 
-   For now, we provide Device Tree source configurations matching all four
-   FPGA development boards for which we know how to build a bitsream:
-   `digilent_nexys4ddr`, `trellisboard`, `lambdaconcept_ecpix5`,
-   `lattice_versa_ecp5` and `digilent_arty`. The example below uses
+   For now, we provide Device Tree source configurations matching all tested
+   FPGA development boards. The example below uses
    [`nexys4ddr.dts`](conf/nexys4ddr.dts), but feel free
-   to replace that with [`trellisboard.dts`](conf/trellisboard.dts),
-   [`ecpix5.dts`](conf/ecpix5.dts), [`versa_ecp5.dts`](conf/versa_ecp5.dts),
-   or [`arty.dts`](conf/arty.dts) as needed:
+   to replace that with the appropriate DTS file for your board:
 
    ```
    git clone https://github.com/riscv/riscv-pk
@@ -439,10 +474,10 @@ download `boot.bin` via TFTP from a server at `192.168.1.100`).
   - LiteSDCard data transfer glitches
   - gpio-based card-detect and/or PMOD (external) SDCard reader for
     `trellisboard`
+- Include LiteSATA support
 - update `json2dts.py` to automatically generate device tree source files
   for LiteX+Rocket SoCs.
-- port to more FPGA dev. boards (e.g., `digilent_genesys2`,
-  `digilent_nexys_video`, etc.)
+- Support additional FPGA dev. boards
 - improve Linux drivers for LiteX gateware, upstream 64- and 32-bit capable
   drivers into mainline Linux
 - ... and much more!
