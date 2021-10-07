@@ -14,7 +14,7 @@ SoC built with [LiteX](https://github.com/enjoy-digital/litex) and
    ```
    sudo dnf install openocd dtc fakeroot perl-bignum json-c-devel verilator \
                     python3-devel python3-setuptools libevent-devel \
-                    libmpc-devel mpfr-devel
+                    libmpc-devel mpfr-devel meson expat-devel
    ```
 
    Some Linux distributions (e.g, Fedora) also provide packaged versions of
@@ -46,7 +46,7 @@ SoC built with [LiteX](https://github.com/enjoy-digital/litex) and
    Note that building the whole gcc cross-compiler toolchain from source may
    take several hours to complete. A pre-built binary tarball of the toolchain
    described above may be downloaded
-   [here](http://www.contrib.andrew.cmu.edu/~somlo/BTCP/RISCV-20201216git7553f35.tar.xz).
+   [here](http://www.contrib.andrew.cmu.edu/~somlo/BTCP/RISCV-20210921gitb39e361.tar.xz).
 
    Be sure to add `$HOME/RISCV/bin` to your `$PATH`, e.g.:
 
