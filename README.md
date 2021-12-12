@@ -265,13 +265,13 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
 
 1. Building BusyBox:
 
-   Using the included [config](conf/busybox-1.31.0-rv64gc.config) file, we
+   Using the included [config](conf/busybox-1.33.2-rv64gc.config) file, we
    cross-compile BusyBox as a static binary for the `rv64gc` architecture:
 
    ```
-   curl https://busybox.net/downloads/busybox-1.31.0.tar.bz2 | tar xfj -
-   cp conf/busybox-1.31.0-rv64gc.config busybox-1.31.0/.config
-   (cd busybox-1.31.0; make CROSS_COMPILE=riscv64-unknown-linux-gnu-)
+   curl https://busybox.net/downloads/busybox-1.33.2.tar.bz2 | tar xfj -
+   cp conf/busybox-1.33.2-rv64gc.config busybox-1.33.2/.config
+   (cd busybox-1.33.2; make CROSS_COMPILE=riscv64-unknown-linux-gnu-)
    ```
 
 2. Creating the `initramfs.cpio` (kernel root RAM filesystem) archive:
@@ -285,7 +285,7 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
    pushd initramfs
    mkdir -p bin sbin lib etc dev home proc sys tmp mnt nfs root \
              usr/bin usr/sbin usr/lib
-   cp ../busybox-1.31.0/busybox bin/
+   cp ../busybox-1.33.2/busybox bin/
    ln -s bin/busybox ./init
    cat > etc/inittab <<- "EOT"
    ::sysinit:/bin/busybox mount -t proc proc /proc
