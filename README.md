@@ -26,7 +26,7 @@ SoC built with [LiteX](https://github.com/enjoy-digital/litex) and
 
    ```
    wget https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py
-   python3 ./litex_setup.py init install --user
+   python3 ./litex_setup.py --config=full --init --install --user
    ```
 
 3. A GCC cross-compiler toolchain for 64-bit RISC-V. One might simply add
