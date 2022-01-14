@@ -73,7 +73,7 @@
 		};
 		L3: debug-controller@0 {
 			compatible = "sifive,debug-013", "riscv,debug-013";
-			interrupts-extended = <&L4 0x10>;
+			interrupts-extended = <&L4 0x3F>;
 			reg = <0x0 0x1000>;
 			reg-names = "control";
 		};
@@ -83,7 +83,7 @@
 		};
 		L7: external-interrupts {
 			interrupt-parent = <&L1>;
-			interrupts = <1 2 3 4>;
+			interrupts = <1 2 3 4 5 6 7 8>;
 		};
 		L1: interrupt-controller@c000000 {
 			#interrupt-cells = <1>;
@@ -93,7 +93,7 @@
 			reg = <0xc000000 0x4000000>;
 			reg-names = "control";
 			riscv,max-priority = <7>;
-			riscv,ndev = <4>;
+			riscv,ndev = <8>;
 		};
 		L10: rom@10000 {
 			compatible = "sifive,rom0";
