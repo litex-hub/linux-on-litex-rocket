@@ -137,6 +137,20 @@
 		device_type = "memory";
 		reg = <0x80000000 0x08000000>; /* 128MB (nexys4ddr/ecp5versa) */
 	};
+	clocks {
+		sys_clk: litex_sys_clk {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <50000000>;
+		};
+	};
+	vreg_mmc: vreg_mmc {
+		compatible = "regulator-fixed";
+		regulator-name = "vreg_mmc";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
 	L12: soc {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -206,7 +220,9 @@
 				<0x12003000 0x100>,
 				<0x12004800 0x100>,
 				<0x12004000 0x100>;
-			bus-width = <0x04>;
+			reg-names = "phy", "core", "reader", "writer", "irq";
+			clocks = <&sys_clk>;
+			vmmc-supply = <&vreg_mmc>;
 			interrupt-parent = <&L1>;
 			interrupts = <4>;
 		};
