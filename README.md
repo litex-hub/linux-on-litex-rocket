@@ -319,6 +319,9 @@ to fit a RocketChip version with a "real" FPU (implemented in gateware).
    popd
    ```
 
+   ***NOTE***: Reports indicate that in some cases `CONFIG_RISCV_SBI_V01` may
+   also need to be enabled in the kernel config file!
+
 4. Building BBL (a.k.a. `boot.bin`, a.k.a. the Litex boot image):
 
    BBL (the somewhat improperly named "Berkely Boot Loader") is in reality a
