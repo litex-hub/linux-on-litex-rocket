@@ -1,0 +1,112 @@
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	compatible = "freechips,rocketchip-unknown-dev";
+	model = "freechips,rocketchip-unknown";
+	chosen {
+		bootargs = "earlycon=sbi console=liteuart swiotlb=noforce";
+	};
+	L13: cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		timebase-frequency = <1000000>;
+		L6: cpu@0 {
+			clock-frequency = <50000000>;
+			compatible = "sifive,rocket0", "riscv";
+			d-cache-block-size = <64>;
+			d-cache-sets = <64>;
+			d-cache-size = <4096>;
+			d-tlb-sets = <1>;
+			d-tlb-size = <4>;
+			device_type = "cpu";
+			hardware-exec-breakpoint-count = <1>;
+			i-cache-block-size = <64>;
+			i-cache-sets = <64>;
+			i-cache-size = <4096>;
+			i-tlb-sets = <1>;
+			i-tlb-size = <4>;
+			mmu-type = "riscv,sv39";
+			next-level-cache = <&L8>;
+			reg = <0x0>;
+			/* FIXME: blatant lie! BBL should s/imac/imafdc/;
+			   https://github.com/riscv/riscv-pk/issues/166 */
+			riscv,isa = "rv64imafdc";
+			riscv,pmpregions = <8>;
+			status = "okay";
+			tlb-split;
+			L4: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+	};
+	L8: memory@80000000 {
+		device_type = "memory";
+		reg = <0x80000000 0x02000000>; /* 32MB (ulx3s) */
+	};
+	L12: soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "freechips,rocketchip-unknown-soc", "simple-bus";
+		ranges;
+		L2: clint@2000000 {
+			compatible = "riscv,clint0";
+			interrupts-extended = <&L4 3 &L4 7>;
+			reg = <0x2000000 0x10000>;
+			reg-names = "control";
+		};
+		L3: debug-controller@0 {
+			compatible = "sifive,debug-013", "riscv,debug-013";
+			interrupts-extended = <&L4 0x10>;
+			reg = <0x0 0x1000>;
+			reg-names = "control";
+		};
+		L0: error-device@3000 {
+			compatible = "sifive,error0";
+			reg = <0x3000 0x1000>;
+		};
+		L7: external-interrupts {
+			interrupt-parent = <&L1>;
+			interrupts = <1 2 3 4>;
+		};
+		L1: interrupt-controller@c000000 {
+			#interrupt-cells = <1>;
+			compatible = "riscv,plic0";
+			interrupt-controller;
+			interrupts-extended = <&L4 11 &L4 9>;
+			reg = <0xc000000 0x4000000>;
+			reg-names = "control";
+			riscv,max-priority = <7>;
+			riscv,ndev = <4>;
+		};
+		L10: rom@10000 {
+			compatible = "sifive,rom0";
+			reg = <0x10000 0x10000>;
+			reg-names = "mem";
+		};
+		soc_ctrl0: soc_controller@12000000 {
+			compatible = "litex,soc-controller";
+			reg = <0x12000000 0xc>;
+		};
+		liteuart0: serial@12005000 {
+			compatible = "litex,liteuart";
+			reg = <0x12005000 0x100>;
+			interrupt-parent = <&L1>;
+			interrupts = <1>;
+		};
+		mmc0: mmc@12003800 {
+			compatible = "litex,mmc";
+			reg = <0x12003800 0x100>,
+				<0x12002000 0x100>,
+				<0x12001800 0x100>,
+				<0x12003000 0x100>,
+				<0x12002800 0x100>;
+			bus-width = <0x04>;
+			interrupt-parent = <&L1>;
+			interrupts = <4>;
+		};
+	};
+};
