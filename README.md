@@ -122,7 +122,7 @@ assuming the board is connected to a USB port and powered on.
 
    ```
    litex-boards/litex_boards/targets/digilent_nexys4ddr.py --build [--load] \
-      --cpu-type rocket --cpu-variant linux4 --sys-clk-freq 50e6 \
+      --cpu-type rocket --cpu-variant linux --sys-clk-freq 50e6 \
       --with-ethernet --with-sdcard
    ```
 
