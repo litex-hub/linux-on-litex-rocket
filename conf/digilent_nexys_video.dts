@@ -6,7 +6,9 @@
 	compatible = "freechips,rocketchip-unknown-dev";
 	model = "freechips,rocketchip-unknown";
 	chosen {
-		bootargs = "console=liteuart earlycon=liteuart,0x12006800 swiotlb=noforce";
+		bootargs = "console=liteuart earlycon=liteuart,0x12009000 swiotlb=noforce rootwait root=/dev/ram0";
+		linux,initrd-start = <0x82000000>;
+		linux,initrd-end   = <0x820DC4DD>; /* end initrd.gz + 12814 (?) bytes */
 	};
 	L13: cpus {
 		#address-cells = <1>;
@@ -17,22 +19,21 @@
 			compatible = "sifive,rocket0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
-			d-cache-size = <4096>;
+			d-cache-size = <16384>;
 			d-tlb-sets = <1>;
-			d-tlb-size = <4>;
+			d-tlb-size = <32>;
 			device_type = "cpu";
 			hardware-exec-breakpoint-count = <1>;
 			i-cache-block-size = <64>;
 			i-cache-sets = <64>;
-			i-cache-size = <4096>;
+			i-cache-size = <16384>;
 			i-tlb-sets = <1>;
-			i-tlb-size = <4>;
+			i-tlb-size = <32>;
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x0>;
-			/* FIXME: blatant lie! BBL should s/imac/imafdc/;
-			   https://github.com/riscv/riscv-pk/issues/166 */
-			riscv,isa = "rv64imafdc";
+			riscv,isa = "rv64imafdcZicsr_Zifencei_Zihpm_Xrocket";
+			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
 			tlb-split;
@@ -47,22 +48,21 @@
 			compatible = "sifive,rocket0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
-			d-cache-size = <4096>;
+			d-cache-size = <16384>;
 			d-tlb-sets = <1>;
-			d-tlb-size = <4>;
+			d-tlb-size = <32>;
 			device_type = "cpu";
 			hardware-exec-breakpoint-count = <1>;
 			i-cache-block-size = <64>;
 			i-cache-sets = <64>;
-			i-cache-size = <4096>;
+			i-cache-size = <16384>;
 			i-tlb-sets = <1>;
-			i-tlb-size = <4>;
+			i-tlb-size = <32>;
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x1>;
-			/* FIXME: blatant lie! BBL should s/imac/imafdc/;
-			   https://github.com/riscv/riscv-pk/issues/166 */
-			riscv,isa = "rv64imafdc";
+			riscv,isa = "rv64imafdcZicsr_Zifencei_Zihpm_Xrocket";
+			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
 			tlb-split;
@@ -77,22 +77,21 @@
 			compatible = "sifive,rocket0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
-			d-cache-size = <4096>;
+			d-cache-size = <16384>;
 			d-tlb-sets = <1>;
-			d-tlb-size = <4>;
+			d-tlb-size = <32>;
 			device_type = "cpu";
 			hardware-exec-breakpoint-count = <1>;
 			i-cache-block-size = <64>;
 			i-cache-sets = <64>;
-			i-cache-size = <4096>;
+			i-cache-size = <16384>;
 			i-tlb-sets = <1>;
-			i-tlb-size = <4>;
+			i-tlb-size = <32>;
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x2>;
-			/* FIXME: blatant lie! BBL should s/imac/imafdc/;
-			   https://github.com/riscv/riscv-pk/issues/166 */
-			riscv,isa = "rv64imafdc";
+			riscv,isa = "rv64imafdcZicsr_Zifencei_Zihpm_Xrocket";
+			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
 			tlb-split;
@@ -107,22 +106,21 @@
 			compatible = "sifive,rocket0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
-			d-cache-size = <4096>;
+			d-cache-size = <16384>;
 			d-tlb-sets = <1>;
-			d-tlb-size = <4>;
+			d-tlb-size = <32>;
 			device_type = "cpu";
 			hardware-exec-breakpoint-count = <1>;
 			i-cache-block-size = <64>;
 			i-cache-sets = <64>;
-			i-cache-size = <4096>;
+			i-cache-size = <16384>;
 			i-tlb-sets = <1>;
-			i-tlb-size = <4>;
+			i-tlb-size = <32>;
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x3>;
-			/* FIXME: blatant lie! BBL should s/imac/imafdc/;
-			   https://github.com/riscv/riscv-pk/issues/166 */
-			riscv,isa = "rv64imafdc";
+			riscv,isa = "rv64imafdcZicsr_Zifencei_Zihpm_Xrocket";
+			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
 			tlb-split;
@@ -135,7 +133,7 @@
 	};
 	L8: memory@80000000 {
 		device_type = "memory";
-		reg = <0x80000000 0x08000000>; /* 128MB (nexys4ddr/ecp5versa) */
+		reg = <0x80000000 0x20000000>; /* 512MB (ecpix5, nexys_video) */
 	};
 	clocks {
 		sys_clk: litex_sys_clk {
@@ -164,7 +162,11 @@
 		};
 		L3: debug-controller@0 {
 			compatible = "sifive,debug-013", "riscv,debug-013";
-			interrupts-extended = <&L4 0x3F &L14 0x3F &L24 0x3F &L34 0x3F>;
+			//interrupts-extended = <&L4 0x3F &L14 0x3F &L24 0x3F &L34 0x3F>;
+			//FIXME: had to reduce this to 0x3F before, now there
+			//are no more kernel errors upon initialization, should
+			//I just go with the chisel-elaborated defaults (below)?
+			interrupts-extended = <&L4 0xFFFF &L14 0xFFFF &L24 0xFFFF &L34 0xFFFF>;
 			reg = <0x0 0x1000>;
 			reg-names = "control";
 		};
@@ -195,9 +197,9 @@
 			compatible = "litex,soc-controller";
 			reg = <0x12000000 0xc>;
 		};
-		liteuart0: serial@12006800 {
+		liteuart0: serial@12009000 {
 			compatible = "litex,liteuart";
-			reg = <0x12006800 0x100>;
+			reg = <0x12009000 0x100>;
 			interrupt-parent = <&L1>;
 			interrupts = <1>;
 		};
@@ -213,18 +215,37 @@
 			interrupt-parent = <&L1>;
 			interrupts = <3>;
 		};
-		mmc0: mmc@12005000 {
+		mmc0: mmc@12007800 {
 			compatible = "litex,mmc";
-			reg = <0x12005000 0x100>,
-				<0x12003800 0x100>,
-				<0x12003000 0x100>,
-				<0x12004800 0x100>,
-				<0x12004000 0x100>;
+			reg = <0x12007800 0x100>,
+				<0x12006000 0x100>,
+				<0x12005800 0x100>,
+				<0x12007000 0x100>,
+				<0x12006800 0x100>;
 			reg-names = "phy", "core", "reader", "writer", "irq";
 			clocks = <&sys_clk>;
 			vmmc-supply = <&vreg_mmc>;
 			interrupt-parent = <&L1>;
+			interrupts = <5>;
+		};
+		litesata0: litesata@12003000 {
+			compatible = "litex,litesata";
+			reg = <0x12003000 0x100>,
+				<0x12004800 0x100>,
+				<0x12005000 0x100>,
+				<0x12004000 0x100>,
+				<0x12003800 0x100>;
+			reg-names = "ident", "phy", "reader", "writer", "irq";
+			interrupt-parent = <&L1>;
 			interrupts = <4>;
+		};
+		timer@12008800 {
+			compatible = "litex,timer";
+			reg = <0x12008800 0x20>;
+			clocks = <&sys_clk>;
+			interrupt-parent = <&L1>;
+			interrupts = <2>;
+			//litex,width = <32>;
 		};
 	};
 };

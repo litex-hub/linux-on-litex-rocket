@@ -6,14 +6,16 @@
 	compatible = "freechips,rocketchip-unknown-dev";
 	model = "freechips,rocketchip-unknown";
 	chosen {
-		bootargs = "console=liteuart earlycon=liteuart,0x12006800 swiotlb=noforce";
+		bootargs = "console=liteuart earlycon=liteuart,0x12006800 swiotlb=noforce rootwait root=/dev/ram0";
+		linux,initrd-start = <0x82000000>;
+		linux,initrd-end   = <0x820DC4DD>; /* end initrd.gz + 12814 (?) bytes */
 	};
 	L13: cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		timebase-frequency = <1000000>;
+		timebase-frequency = <750000>;
 		L6: cpu@0 {
-			clock-frequency = <100000000>;
+			clock-frequency = <75000000>;
 			compatible = "sifive,rocket0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
@@ -30,7 +32,7 @@
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x0>;
-			riscv,isa = "rv64imafdc";
+			riscv,isa = "rv64imafdcZicsr_Zifencei_Zihpm_Xrocket";
 			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
@@ -42,7 +44,7 @@
 			};
 		};
 		L16: cpu@1 {
-			clock-frequency = <100000000>;
+			clock-frequency = <75000000>;
 			compatible = "sifive,rocket0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
@@ -59,7 +61,7 @@
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x1>;
-			riscv,isa = "rv64imafdc";
+			riscv,isa = "rv64imafdcZicsr_Zifencei_Zihpm_Xrocket";
 			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
@@ -71,7 +73,7 @@
 			};
 		};
 		L26: cpu@2 {
-			clock-frequency = <100000000>;
+			clock-frequency = <75000000>;
 			compatible = "sifive,rocket0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
@@ -88,7 +90,7 @@
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x2>;
-			riscv,isa = "rv64imafdc";
+			riscv,isa = "rv64imafdcZicsr_Zifencei_Zihpm_Xrocket";
 			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
@@ -100,7 +102,7 @@
 			};
 		};
 		L36: cpu@3 {
-			clock-frequency = <100000000>;
+			clock-frequency = <75000000>;
 			compatible = "sifive,rocket0", "riscv";
 			d-cache-block-size = <64>;
 			d-cache-sets = <64>;
@@ -117,7 +119,7 @@
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x3>;
-			riscv,isa = "rv64imafdc";
+			riscv,isa = "rv64imafdcZicsr_Zifencei_Zihpm_Xrocket";
 			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
@@ -131,21 +133,14 @@
 	};
 	L8: memory@80000000 {
 		device_type = "memory";
-		reg = <0x80000000 0x40000000>; /* 1GB (trellis, genesys2) */
+		reg = <0x80000000 0x40000000>; /* 1GB (trellis, genesys2, acorn) */
 	};
 	clocks {
 		sys_clk: litex_sys_clk {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
-			clock-frequency = <100000000>;
+			clock-frequency = <75000000>;
 		};
-	};
-	vreg_mmc: vreg_mmc {
-		compatible = "regulator-fixed";
-		regulator-name = "vreg_mmc";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		regulator-always-on;
 	};
 	L12: soc {
 		#address-cells = <1>;
@@ -160,7 +155,11 @@
 		};
 		L3: debug-controller@0 {
 			compatible = "sifive,debug-013", "riscv,debug-013";
-			interrupts-extended = <&L4 0x3F &L14 0x3F &L24 0x3F &L34 0x3F>;
+			//interrupts-extended = <&L4 0x3F &L14 0x3F &L24 0x3F &L34 0x3F>;
+			//FIXME: had to reduce this to 0x3F before, now there
+			//are no more kernel errors upon initialization, should
+			//I just go with the chisel-elaborated defaults (below)?
+			interrupts-extended = <&L4 0xFFFF &L14 0xFFFF &L24 0xFFFF &L34 0xFFFF>;
 			reg = <0x0 0x1000>;
 			reg-names = "control";
 		};
@@ -209,18 +208,24 @@
 			interrupt-parent = <&L1>;
 			interrupts = <3>;
 		};
-		mmc0: mmc@12005000 {
-			compatible = "litex,mmc";
-			reg = <0x12005000 0x100>,
-				<0x12003800 0x100>,
-				<0x12003000 0x100>,
+		litesata0: litesata@12003000 {
+			compatible = "litex,litesata";
+			reg = <0x12003000 0x100>,
 				<0x12004800 0x100>,
-				<0x12004000 0x100>;
-			reg-names = "phy", "core", "reader", "writer", "irq";
-			clocks = <&sys_clk>;
-			vmmc-supply = <&vreg_mmc>;
+				<0x12005000 0x100>,
+				<0x12004000 0x100>,
+				<0x12003800 0x100>;
+			reg-names = "ident", "phy", "reader", "writer", "irq";
 			interrupt-parent = <&L1>;
 			interrupts = <4>;
+		};
+		timer@12006000 {
+			compatible = "litex,timer";
+			reg = <0x12006000 0x20>;
+			clocks = <&sys_clk>;
+			interrupt-parent = <&L1>;
+			interrupts = <2>;
+			//litex,width = <32>;
 		};
 	};
 };

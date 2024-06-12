@@ -6,7 +6,9 @@
 	compatible = "freechips,rocketchip-unknown-dev";
 	model = "freechips,rocketchip-unknown";
 	chosen {
-		bootargs = "console=liteuart earlycon=liteuart,0x12006800 swiotlb=noforce";
+		bootargs = "console=liteuart earlycon=liteuart,0x12009000 swiotlb=noforce ro root=/dev/mmcblk0p2 LANG=en_US.UTF-8 systemd.default_timeout_start_sec=360s systemd.unit=multi-user.target enforcing=0";
+		linux,initrd-start = <0x83000000>;
+		linux,initrd-end   = <0x87208DCF>; // end of gzip initrd
 	};
 	L13: cpus {
 		#address-cells = <1>;
@@ -191,9 +193,9 @@
 			compatible = "litex,soc-controller";
 			reg = <0x12000000 0xc>;
 		};
-		liteuart0: serial@12006800 {
+		liteuart0: serial@12009000 {
 			compatible = "litex,liteuart";
-			reg = <0x12006800 0x100>;
+			reg = <0x12009000 0x100>;
 			interrupt-parent = <&L1>;
 			interrupts = <1>;
 		};
@@ -209,16 +211,27 @@
 			interrupt-parent = <&L1>;
 			interrupts = <3>;
 		};
-		mmc0: mmc@12005000 {
+		mmc0: mmc@12007800 {
 			compatible = "litex,mmc";
-			reg = <0x12005000 0x100>,
-				<0x12003800 0x100>,
-				<0x12003000 0x100>,
-				<0x12004800 0x100>,
-				<0x12004000 0x100>;
+			reg = <0x12007800 0x100>,
+				<0x12006000 0x100>,
+				<0x12005800 0x100>,
+				<0x12007000 0x100>,
+				<0x12006800 0x100>;
 			reg-names = "phy", "core", "reader", "writer", "irq";
 			clocks = <&sys_clk>;
 			vmmc-supply = <&vreg_mmc>;
+			interrupt-parent = <&L1>;
+			interrupts = <5>;
+		};
+		litesata0: litesata@12003000 {
+			compatible = "litex,litesata";
+			reg = <0x12003000 0x100>,
+				<0x12004800 0x100>,
+				<0x12005000 0x100>,
+				<0x12004000 0x100>,
+				<0x12003800 0x100>;
+			reg-names = "ident", "phy", "reader", "writer", "irq";
 			interrupt-parent = <&L1>;
 			interrupts = <4>;
 		};
