@@ -26,7 +26,7 @@ SoC built with [LiteX](https://github.com/enjoy-digital/litex) and
 2. Unpackaged components, including the sources to LiteX and software items:
 
    **NOTE:** use the included
-   [`download_components.sh`](scripts/download_components.sh) 
+   [`download_components.sh`](scripts/download_components.sh)
    script to download and install all listed components.
 
    - [GCC cross-compiler toolchain for 64-bit RISC-V](https://github.com/riscv/riscv-gnu-toolchain).
@@ -68,7 +68,7 @@ Pre-built binaries for the targets described below are available for download
 ## Building the Linux kernel and initrd userspace image:
 
 **NOTE:** use the included
-[`build_software.sh`](scripts/build_software.sh) 
+[`build_software.sh`](scripts/build_software.sh)
 script to build the universal (kernel and userspace) software components.
 
 Both the Linux kernel and initial ram disk image (which, in turn, is based
@@ -80,7 +80,7 @@ are present in the design.
 
 ## Building the Gateware (FPGA Bitstream):
 
-### Building bitstream for `lambdaconcept_ecpix5` (Lattice ECP5 85k):
+### Building bitstream for [`lambdaconcept_ecpix5`](https://shop.lambdaconcept.com/home/46-2-ecpix-5.html#/2-ecpix_5_fpga-ecpix_5_85f) (Lattice ECP5 85k):
 
 ```text
 cd ~/LITEX
@@ -157,9 +157,10 @@ and adjust the `--cpu-mem-width` value in your build command line accordingly.
 ### DT (Device Tree) file specific to your design/bitstream:
 
 The included `*.dts` files (in the [`conf`](conf/) folder) were manually
-assembled from information collected during bitstream generation, stored
-in the resulting `csr.csv` and `csr.json` files found in
-`~/LITEX/build/<board-name>/`.
+assembled by combining core-specific parameters from the sample `*.dts`
+files provided in `pythondata-cpu-rocket` with register address data
+collected during bitstream generation, stored in the resulting `csr.csv`
+and `csr.json` files found in `~/LITEX/build/<board-name>/`.
 
 Note that interrupt numbers contained in `csr.*` must be incremented by 1
 in the `*.dts` file in order to match the way RocketChip keeps track of
