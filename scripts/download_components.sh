@@ -16,11 +16,18 @@ echo 'export PATH=$PATH:$HOME/RISCV/bin' >> ~/.bashrc
 # LiteX repositories:
 # (`git pull` in all repos and rebuild btstream to stay up to date)
 mkdir LITEX; pushd LITEX
-for i in litex litedram liteeth litesdcard litesata litescope; do
+for i in litex litedram liteeth litesdcard litesata litescope \
+         liteiclink litepcie litejesd204b; do
   git clone --recursive https://github.com/enjoy-digital/$i
   (cd $i; python setup.py develop --user)
 done
-for i in litex-boards pythondata-cpu-rocket pythondata-software-picolibc pythondata-software-compiler_rt; do
+for i in litex-boards pythondata-cpu-rocket pythondata-software-picolibc pythondata-software-compiler_rt \
+         litespi pythondata-misc-tapcfg pythondata-misc-usb_ohci \
+         pythondata-cpu-blackparrot pythondata-cpu-cv32e40p \
+         pythondata-cpu-cv32e41p pythondata-cpu-cva5 pythondata-cpu-cva6 \
+         pythondata-cpu-ibex pythondata-cpu-minerva pythondata-cpu-naxriscv \
+         pythondata-cpu-picorv32 pythondata-cpu-serv pythondata-cpu-vexriscv \
+         pythondata-cpu-vexriscv-smp pythondata-cpu-vexiiriscv; do
   git clone --recursive https://github.com/litex-hub/$i
   (cd $i; python setup.py develop --user)
 done
