@@ -244,7 +244,7 @@ the author's [FOSDEM23 talk](https://archive.fosdem.org/2023/schedule/event/rv_s
 
 To replicate that process:
 
-- Obtain a 32GB sizeed SD card
+- Obtain a 32GB sized SD card
 - Download and unpack the pre-made SD card image:
 
   ```text
