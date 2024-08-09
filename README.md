@@ -113,7 +113,7 @@ The resulting bitstream can be sent to the board using the following command:
 ```text
 openocd -f litex-boards/litex_boards/prog/openocd_nexys_video.cfg \
   -c 'transport select jtag; init; \
-      pld load 0 build/digilent_nexys_video/gateware/digilent_nexys_video.bit \
+      pld load 0 build/digilent_nexys_video/gateware/digilent_nexys_video.bit; \
       exit'
 ```
 
@@ -131,7 +131,7 @@ The resulting bitstream can be sent to the board using the following command:
 ```text
 openocd -f litex-boards/litex_boards/prog/openocd_xc7_ft2232.cfg \
  -c 'transport select jtag; init; \
-  pld load build/litex_acorn_baseboard_mini/gateware/litex_acorn_baseboard_mini.bit \
+  pld load build/litex_acorn_baseboard_mini/gateware/litex_acorn_baseboard_mini.bit; \
   exit'
 ```
 
