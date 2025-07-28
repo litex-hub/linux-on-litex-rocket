@@ -6,9 +6,11 @@
 	compatible = "freechips,rocketchip-unknown-dev";
 	model = "freechips,rocketchip-unknown";
 	chosen {
-		bootargs = "console=liteuart earlycon=liteuart,0x12006800 swiotlb=noforce rootwait root=/dev/ram0";
+		// on first boot, run "restorecon -Rp /" (very slow) and
+		// "systemctl set-default multi-user.target" to set defaults!
+		bootargs = "console=liteuart earlycon=liteuart,0x12004800 swiotlb=noforce rootwait root=/dev/ram0";
 		linux,initrd-start = <0x82000000>;
-		linux,initrd-end   = <0x820DC4DD>; /* end initrd.gz + 12814 (?) bytes */
+		linux,initrd-end   = <0x820DC4DD>; // end of gzip initrd + 12814
 	};
 	L13: cpus {
 		#address-cells = <1>;
@@ -107,9 +109,9 @@
 			compatible = "litex,soc-controller";
 			reg = <0x12000000 0xc>;
 		};
-		liteuart0: serial@12006800 {
+		liteuart0: serial@12004800 {
 			compatible = "litex,liteuart";
-			reg = <0x12006800 0x100>;
+			reg = <0x12004800 0x100>;
 			interrupt-parent = <&L1>;
 			interrupts = <1>;
 		};
@@ -125,13 +127,13 @@
 			interrupt-parent = <&L1>;
 			interrupts = <3>;
 		};
-		mmc0: mmc@12005000 {
+		mmc0: mmc@12003000 {
 			compatible = "litex,mmc";
-			reg = <0x12005000 0x100>,
-				<0x12003800 0x100>,
-				<0x12003000 0x100>,
-				<0x12004800 0x100>,
-				<0x12004000 0x100>;
+			reg = <0x12003000 0x14>,
+				<0x12003014 0x2c>,
+				<0x12003040 0x1c>,
+				<0x1200305c 0x1c>,
+				<0x12003078 0x100>;
 			reg-names = "phy", "core", "reader", "writer", "irq";
 			clocks = <&sys_clk>;
 			vmmc-supply = <&vreg_mmc>;

@@ -6,9 +6,19 @@
 	compatible = "freechips,rocketchip-unknown-dev";
 	model = "freechips,rocketchip-unknown";
 	chosen {
-		bootargs = "console=liteuart earlycon=liteuart,0x12009000 swiotlb=noforce ro root=/dev/mmcblk0p2 LANG=en_US.UTF-8 systemd.default_timeout_start_sec=360s systemd.unit=multi-user.target enforcing=0";
+		// on first boot, run "restorecon -Rp /" (very slow) and
+		// "systemctl set-default multi-user.target" to set defaults!
+		bootargs = "console=liteuart earlycon=liteuart,0x12007000 swiotlb=noforce ro root=/dev/mmcblk0p2 LANG=en_US.UTF-8 systemd.default_timeout_start_sec=360s systemd.unit=multi-user.target enforcing=0";
+		// The default FW_JUMP_FDT_ADDR in opensbi is 0x82200000;
+		// However, even though the recommended (by opensbi) test
+		// says that the kernel officially ends *before* that, if
+		// things are *close*, portions of the kernel may end up
+		// being overwritten. As such, we build fw_jump.bin with
+		// `FW_JUMP_FDT_ADDR=0x82400000`, place the initrd at
+		// `linux,initrd-start = <0x83000000>;`, and omit the
+		// `linux,initrd-end` parameter altogether (since it seems
+		// optional, at least in our fedora use case).
 		linux,initrd-start = <0x83000000>;
-		linux,initrd-end   = <0x87208DCF>; // end of gzip initrd
 	};
 	L13: cpus {
 		#address-cells = <1>;
@@ -32,7 +42,7 @@
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x0>;
-			riscv,isa = "rv64imafdc";
+			riscv,isa = "rv64imafdcZicsr_Zifencei_Zihpm_Xrocket";
 			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
@@ -61,7 +71,7 @@
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x1>;
-			riscv,isa = "rv64imafdc";
+			riscv,isa = "rv64imafdcZicsr_Zifencei_Zihpm_Xrocket";
 			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
@@ -90,7 +100,7 @@
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x2>;
-			riscv,isa = "rv64imafdc";
+			riscv,isa = "rv64imafdcZicsr_Zifencei_Zihpm_Xrocket";
 			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
@@ -119,7 +129,7 @@
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&L8>;
 			reg = <0x3>;
-			riscv,isa = "rv64imafdc";
+			riscv,isa = "rv64imafdcZicsr_Zifencei_Zihpm_Xrocket";
 			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
@@ -163,6 +173,7 @@
 		L3: debug-controller@0 {
 			compatible = "sifive,debug-013", "riscv,debug-013";
 			interrupts-extended = <&L4 0x3F &L14 0x3F &L24 0x3F &L34 0x3F>;
+			// FIXME: chisel-elaborated mask is 0xFFFF, why?
 			reg = <0x0 0x1000>;
 			reg-names = "control";
 		};
@@ -193,9 +204,9 @@
 			compatible = "litex,soc-controller";
 			reg = <0x12000000 0xc>;
 		};
-		liteuart0: serial@12009000 {
+		liteuart0: serial@12007000 {
 			compatible = "litex,liteuart";
-			reg = <0x12009000 0x100>;
+			reg = <0x12007000 0x100>;
 			interrupt-parent = <&L1>;
 			interrupts = <1>;
 		};
@@ -211,13 +222,13 @@
 			interrupt-parent = <&L1>;
 			interrupts = <3>;
 		};
-		mmc0: mmc@12007800 {
+		mmc0: mmc@12005800 {
 			compatible = "litex,mmc";
-			reg = <0x12007800 0x100>,
-				<0x12006000 0x100>,
-				<0x12005800 0x100>,
-				<0x12007000 0x100>,
-				<0x12006800 0x100>;
+			reg = <0x12005800 0x14>,
+				<0x12005814 0x2c>,
+				<0x12005840 0x1c>,
+				<0x1200585c 0x1c>,
+				<0x12005878 0x100>;
 			reg-names = "phy", "core", "reader", "writer", "irq";
 			clocks = <&sys_clk>;
 			vmmc-supply = <&vreg_mmc>;
