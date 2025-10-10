@@ -130,10 +130,10 @@
 		mmc0: mmc@12003000 {
 			compatible = "litex,mmc";
 			reg = <0x12003000 0x14>,
-				<0x12003014 0x2c>,
-				<0x12003040 0x1c>,
-				<0x1200305c 0x1c>,
-				<0x12003078 0x100>;
+				<0x1200301c 0x2c>,
+				<0x12003048 0x1c>,
+				<0x12003064 0x1c>,
+				<0x12003080 0x100>;
 			reg-names = "phy", "core", "reader", "writer", "irq";
 			clocks = <&sys_clk>;
 			vmmc-supply = <&vreg_mmc>;

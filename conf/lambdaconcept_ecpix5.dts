@@ -6,11 +6,9 @@
 	compatible = "freechips,rocketchip-unknown-dev";
 	model = "freechips,rocketchip-unknown";
 	chosen {
-		// on first boot, run "restorecon -Rp /" (very slow) and
-		// "systemctl set-default multi-user.target" to set defaults!
 		bootargs = "console=liteuart earlycon=liteuart,0x12004800 swiotlb=noforce rootwait root=/dev/ram0";
 		linux,initrd-start = <0x82000000>;
-		linux,initrd-end   = <0x820DC4DD>; // end of gzip initrd + 12814
+		linux,initrd-end   = <0x820DC4DD>; // end of gzip initrd + 12814 (?)
 	};
 	L13: cpus {
 		#address-cells = <1>;
@@ -78,7 +76,7 @@
 		L3: debug-controller@0 {
 			compatible = "sifive,debug-013", "riscv,debug-013";
 			// FIXME: chisel-elaborated mask is 0xFFFF, why?
-			interrupts-extended = <&L4 0x3F>;
+			interrupts-extended = <&L4 0xFFFF>;
 			reg = <0x0 0x1000>;
 			reg-names = "control";
 		};
@@ -130,10 +128,10 @@
 		mmc0: mmc@12003000 {
 			compatible = "litex,mmc";
 			reg = <0x12003000 0x14>,
-				<0x12003014 0x2c>,
-				<0x12003040 0x1c>,
-				<0x1200305c 0x1c>,
-				<0x12003078 0x100>;
+				<0x1200301c 0x2c>,
+				<0x12003048 0x1c>,
+				<0x12003064 0x1c>,
+				<0x12003080 0x100>;
 			reg-names = "phy", "core", "reader", "writer", "irq";
 			clocks = <&sys_clk>;
 			vmmc-supply = <&vreg_mmc>;
